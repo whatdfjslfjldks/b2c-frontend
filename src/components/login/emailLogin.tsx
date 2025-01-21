@@ -18,7 +18,7 @@ export default function EmailLogin() {
     setEmailPrefix(e.target.value);
   };
 
-  const handleDomainChange = (e: React.ChangeEvent<{ value: unknown }>) => {
+  const handleDomainChange = (e: any) => {
     setSelectedDomain(e.target.value as string);
   };
 
@@ -63,7 +63,6 @@ export default function EmailLogin() {
       <Typography variant="h5" sx={{ textAlign: 'center', marginBottom: 3, fontWeight: 600 }}>
         邮箱登录
       </Typography>
-      {error && <Typography sx={{ color: 'red', fontSize: '14px', textAlign: 'center', marginBottom: 2 }}>{error}</Typography>}
       <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
 
         <Grid container spacing={2}>
@@ -167,6 +166,15 @@ export default function EmailLogin() {
             />
           </Grid>
           <Grid item xs={12}>
+          {error &&
+               <Typography 
+               sx={{ 
+                position: 'absolute',
+                color: 'red', 
+               fontSize: '14px',
+                textAlign: 'center', 
+                marginTop: -1,
+                }}>{error}</Typography>}
             <Button
               variant="contained"
               color="primary"

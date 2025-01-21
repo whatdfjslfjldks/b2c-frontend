@@ -15,22 +15,28 @@ export function fetchAPI(path: string | URL, init?: RequestInit) {
     const host =
         process.env.NODE_ENV === "development"
             ? process.env.NEXT_PUBLIC_API_URL
-            : process.env.NEXT_PUBLIC_API_URL;
+            : ""; // 暂无
 
-    // 如果 init 存在且包含 headers，则合并 'ngrok-skip-browser-warning' 头
+    // 如果 init 存在且包含 headers
     const headers = {
         ...init?.headers, // 保留用户传入的请求头
-        // 'ngrok-skip-browser-warning': 'true',
+        // 'ngrok-skip-browser-warning': 'true',ngrok请求头，跳过检查
     };
 
     // 构造完整的请求路径
     const constructedPath = path instanceof URL ? path : host + path;
 
-    // 发起网络请求并返回 Promise 对象
-    return fetch(constructedPath, { ...init, headers }).catch((e) => {
+    return fetch(constructedPath, { ...init, headers })
+    .then((response) => {
+        // if (!response.ok) {
+        //     throw new Error(`HTTP error! status: ${response.status}`);
+        // }
+        return response.json(); // 解析 JSON 响应
+    })
+    .catch((e) => {
         if (process.env.NODE_ENV === "development") {
             console.log("fetchAPI error: ", e);
         }
-        return undefined;
+        return undefined; // 或者可以返回一个错误对象
     });
 }

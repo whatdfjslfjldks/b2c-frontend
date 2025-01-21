@@ -1,3 +1,4 @@
+'use client'
 import { createSlice } from '@reduxjs/toolkit';
 
 // 定义 User 信息的接口
@@ -19,8 +20,12 @@ interface UserState {
 
 // 从 localStorage 获取用户信息，确保格式符合 User 接口
 const getUserFromLocalStorage = (): User | null => {
-  const user = localStorage.getItem('userInfo');
-  return user ? JSON.parse(user) : null;
+  if (typeof window !== 'undefined') {
+    // 只有在浏览器环境中才执行
+    const user = localStorage.getItem('userInfo');
+    return user ? JSON.parse(user) : null;
+  }
+  return null; // 在服务器端返回 null
 };
 
 // 初始状态，尝试从 localStorage 加载数据

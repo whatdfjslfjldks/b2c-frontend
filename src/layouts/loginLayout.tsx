@@ -19,12 +19,6 @@ export default function LoginLayout(){
      width={120}
      />
         </div>
-        <div style={{
-            marginLeft:"20px"
-        }}>
-            亚🐎孙
-        </div>
-
 
         <div style={{
             marginLeft:"auto",
