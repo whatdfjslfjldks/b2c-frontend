@@ -3,11 +3,10 @@
 import React, { useState } from 'react';
 import { TextField, Button, Grid, Typography, Box, Container, Paper, InputAdornment, CircularProgress } from '@mui/material';
 import { AccountCircle, Lock } from '@mui/icons-material';
-import LoginLayout from '@/layouts/loginLayout';
-import FootLayout from '@/layouts/footLayout';
 import { fetchAPI } from '@/api/fetchApi';
 import { useDispatch } from 'react-redux';
 import { setUserInfo } from '../../redux/userInfoSlice';
+import { useRouter } from 'next/navigation'
 
 export default function UsernameLogin() {
     const [username, setUsername] = useState<string>('');
@@ -15,33 +14,13 @@ export default function UsernameLogin() {
     const [error, setError] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const dispatch = useDispatch();
+    const router=useRouter()
   
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
+      // TODO 先不加格式判断
       if (username && password) {
-        // 模拟异步请求
-        // setTimeout(() => {
-        //   console.log('用户名:', username);
-        //   console.log('密码:', password);
-        //   setError('');
-        //   setLoading(false);
-        // }, 2000);
         setLoading(true);
-        // fetch('http://localhost:8080/api/user-server/loginByPassword', {
-        //   method: 'POST',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //   },
-        //   body: JSON.stringify({ 
-        //     username: username, 
-        //     password:password 
-        //   }),
-        // })
-        //   .then((response) => response.json())
-        //   .then((data) => {
-        //     console.log('Response:', data);
-        //     setLoading(false);
-        //   })
 
         fetchAPI('/user-server/loginByPassword',{
           method:'POST',
@@ -55,6 +34,7 @@ export default function UsernameLogin() {
             // console.log('Response:', data);
             setError("");
             dispatch(setUserInfo(data.data))
+            router.push("/")
             // localStorage.setItem("userInfo",JSON.stringify(data.data))
           }else{
             setError(data.msg);

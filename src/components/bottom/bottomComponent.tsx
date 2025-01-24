@@ -37,9 +37,9 @@ export default function BottomComponent() {
               &copy; 2025 Patrick. All Rights Reserved.
             </Typography>
           </Box>
-
           <Box sx={{ display: "flex", alignItems: "center" }}>
-  <Link href="https://github.com/whatdfjslfjldks" target="_blank" sx={{marginX: "10px", display: "flex", alignItems: "center" }}>
+  <Link href="https://github.com/whatdfjslfjldks" target="_blank" 
+  sx={{marginX: "10px", display: "flex", alignItems: "center", textDecoration: "none" }}>
     <GitHubIcon sx={{ fontSize: 25, marginRight: 1 ,color:"#000"}} />
     <Typography variant="body2" color="black">GitHub</Typography>
   </Link>

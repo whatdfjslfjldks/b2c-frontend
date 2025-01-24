@@ -1,6 +1,6 @@
 'use client'
 
-export default function LoginLayout(){
+export default function LoginHeaderComponent(){
     return (
         <div style={{
             display:"flex",

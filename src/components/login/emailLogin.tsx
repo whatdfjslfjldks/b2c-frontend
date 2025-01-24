@@ -1,9 +1,13 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { TextField, Button, Grid, Typography, Box, Paper, InputAdornment, CircularProgress, FormControl, MenuItem, Select, InputLabel } from '@mui/material';
 import { Mail, Security } from '@mui/icons-material';
 import LoadingButton from '@mui/lab/LoadingButton';
+import { fetchAPI } from '@/api/fetchApi';
+import { useRouter } from 'next/navigation';
+import { useDispatch } from 'react-redux';
+import { setUserInfo } from '../../redux/userInfoSlice';
 
 export default function EmailLogin() {
   const [error, setError] = useState<string | null>(null);
@@ -13,7 +17,8 @@ export default function EmailLogin() {
   const [verifyCode, setVerifyCode] = useState("");
   const [remainingTime, setRemainingTime] = useState<number | null>(null);
   const [sendVerificationState, setSendVerificationState] = useState({ submitting: false });
-
+  const router=useRouter();
+  const dispatch = useDispatch();
   const handleEmailPrefixChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmailPrefix(e.target.value);
   };
@@ -27,22 +32,79 @@ export default function EmailLogin() {
       setError("请输入完整的邮箱地址");
       return;
     }
-    setSendVerificationState({ submitting: true });
-    let timer = 60;
-    setRemainingTime(timer);
-    const interval = setInterval(() => {
-      timer -= 1;
-      setRemainingTime(timer);
-      if (timer <= 0) clearInterval(interval);
-    }, 1000);
+    setError("")
+    handleRemainingTime();
+
+    // 发送验证码
+    fetchAPI('/user-server/sendVerifyCode',{
+      method:'POST',
+      body:JSON.stringify({
+        email:emailPrefix+selectedDomain,
+      })
+    })
+    .then((data)=>{
+      if(data.code===200){
+        setError("")
+      }else{
+        setError(data.msg)
+      }
+    })
   };
 
-  const handleSubmit = () => {
+  const handleRemainingTime = () => {
+    setRemainingTime(60);
+
+    const countdownInterval = setInterval(() => {
+      updateRemainingTime();
+    }, 1000);
+
+    setTimeout(() => {
+      clearInterval(countdownInterval);
+      setRemainingTime(null);
+    }, 60000);
+  };
+  //TODO 解决的问题 callback写计时器，callback不会因为组件的重新渲染而重新创建，除非它的依赖发生变化。
+
+  //倒计时
+  const updateRemainingTime = useCallback(() => {
+    setRemainingTime((prevRemainingTime) => {
+      if (prevRemainingTime === null) {
+        return null;
+      } else if (prevRemainingTime === 0) {
+        return null;
+      } else {
+        return prevRemainingTime - 1;
+      }
+    });
+  }, []);
+
+  
+
+  const handleSubmit = (e:any) => {
+    e.preventDefault(); 
+    //TODO 之后加格式校验
     if (!emailPrefix || !verifyCode) {
       setError("请填写完整的邮箱和验证码");
       return;
     }
-    console.log("提交成功");
+    setError("")
+
+    fetchAPI('/user-server/checkVerifyCode',{
+      method:'POST',
+      body:JSON.stringify({
+        email:emailPrefix+selectedDomain,
+        verify_code:verifyCode
+      })
+    })
+    .then((data)=>{
+      if(data.code===200){
+        dispatch(setUserInfo(data.data))
+        router.push("/")
+      }else{
+        setError(data.msg)
+      }
+    })
+
   };
 
   return (
@@ -63,7 +125,7 @@ export default function EmailLogin() {
       <Typography variant="h5" sx={{ textAlign: 'center', marginBottom: 3, fontWeight: 600 }}>
         邮箱登录
       </Typography>
-      <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+      <form onSubmit={(e) => {handleSubmit(e); }}>
 
         <Grid container spacing={2}>
 
@@ -146,13 +208,14 @@ export default function EmailLogin() {
                   </InputAdornment>
                 ),
                 endAdornment: (
-                  <div style={{ cursor: "pointer" }} onClick={handleSendVerificationCode}>
+                  <div style={{ cursor: "pointer" }}>
                     <LoadingButton
                       style={{
                         borderRadius: "20px",
                         color: "#5360FE",
                         backgroundColor: "rgba(238, 239, 255, 1)",
                       }}
+                      onClick={handleSendVerificationCode}
                       loading={sendVerificationState.submitting}
                       disabled={remainingTime !== null && remainingTime > 0}
                     >

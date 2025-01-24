@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { Provider } from 'react-redux';
 import { store } from '../redux/store';
 import  Auth  from '../auth/auth';
-import "../app/globals.css"
+import "../styles/globals.css"
 
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

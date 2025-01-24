@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button, Box } from '@mui/material';
-import LoginLayout from '@/layouts/loginLayout';
-import FootLayout from '@/layouts/footLayout';
-import UsernameLogin from '@/components/login/usernameLogin';
-import EmailLogin from '@/components/login/emailLogin';
+import { Box } from '@mui/material';
+import LoginLayout from '@/components/login/LoginHeaderComponent';
+import FootLayout from '@/components/bottom/bottomComponent';
+import { ToastContainer } from 'react-toastify';
+const UsernameLogin = React.lazy(() => import('@/components/login/usernameLogin'));
+const EmailLogin = React.lazy(() => import('@/components/login/emailLogin'));
 
 const LoginForm: React.FC = () => {
   const [isUsernameLogin, setIsUsernameLogin] = useState(true);
