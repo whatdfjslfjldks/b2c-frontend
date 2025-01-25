@@ -4,11 +4,11 @@ import { createSlice } from '@reduxjs/toolkit';
 // 定义 User 信息的接口
 interface User {
   userId: number;
-  userName: string;
+  username: string;
   role: string;
   accessToken:string;
   refreshToken:string;
-  avatar: string;
+  avatarUrl: string;
 }
 
 // 定义状态类型

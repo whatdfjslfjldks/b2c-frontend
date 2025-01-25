@@ -2,6 +2,7 @@
 
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import StarBorderIcon from '@mui/icons-material/StarBorder';
+import FaceIcon from '@mui/icons-material/Face'
 import { Tooltip } from "@mui/material";
 
 export default function FloatMenuComponent() {
@@ -22,6 +23,15 @@ export default function FloatMenuComponent() {
             <StarBorderIcon sx={{ fontSize: 24 }} />
           </div>
         </Tooltip>
+
+
+    {/* AI 机器人图标 */}
+    <Tooltip title="智能客服" arrow placement="right">
+      <div className="text-[#1f1f1f] hover:bg-[#f0f0f0] p-2 rounded-lg transition-colors cursor-pointer">
+        <FaceIcon  sx={{ fontSize: 24 }} />
+      </div>
+    </Tooltip>
+
       </div>
     </div>
   )

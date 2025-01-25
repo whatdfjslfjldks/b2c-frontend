@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import moment from 'moment-timezone';
 
 export default function SecKillComponent() {
-  const deadline = "2025-01-25T10:30:00+08:00"; // 设置截止时间
+  const deadline = "2025-01-25T14:30:00+08:00"; // 设置截止时间
 
   const [timeLeft, setTimeLeft] = useState(0);
 

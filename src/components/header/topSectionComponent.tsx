@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useRef } from "react";
 import Image from "next/image";
 import {
   TextField,
@@ -11,8 +12,7 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import DeleteIcon from "@mui/icons-material/Delete"; // 导入垃圾桶图标
-import { useState, useRef } from "react";
-
+import { useRouter } from "next/navigation";
 export default function TopSectionComponent() {
   const [open, setOpen] = useState(false);
   const [historySearch, setHistorySearch] = useState<string[]>([
@@ -22,7 +22,7 @@ export default function TopSectionComponent() {
   ]); // 模拟历史搜索
   const [isHovered, setIsHovered] = useState(false); // 用于检测鼠标是否悬停
   const containerRef = useRef<HTMLDivElement>(null); // 获取搜索框外部容器的引用
-
+  const router=useRouter();
   function handleSearch() {
     console.log("Search");
   }
@@ -47,7 +47,7 @@ export default function TopSectionComponent() {
   return (
     <div className="flex flex-row w-full h-[96px] items-center pt-[16px] pb-[8px]">
       {/* Logo */}
-      <div className="flex mt-2">
+      <div onClick={() => router.push('/')} className="flex mt-2 cursor-pointer">
         <Image
           src="/images/logo.png"
           alt="logo"
@@ -66,7 +66,7 @@ export default function TopSectionComponent() {
           限时秒杀
         </div>
         <div className="mr-[20px] cursor-pointer hover:text-[#ff5000]">
-          现时预售
+          限时预售
         </div>
         <div className="mr-[20px] cursor-pointer hover:text-[#ff5000]">
           新闻列表
