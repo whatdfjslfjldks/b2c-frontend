@@ -19,9 +19,9 @@ const LoginForm: React.FC = () => {
     <div
       style={{
         display: 'flex',
-        flexDirection: 'column', // 子元素按列排列
-        minHeight: '100vh', // 高度占满整个视口
-        width: '100%', // 宽度占满整个视口
+        flexDirection: 'column',
+        minHeight: '100vh', 
+        width: '100%', 
       }}
     >
       <LoginLayout />
@@ -33,9 +33,9 @@ const LoginForm: React.FC = () => {
           justifyContent: 'center',
           alignItems: 'center',
           backgroundImage: 'url(/images/loginBk.jpg)', 
-          backgroundSize: 'cover', // 背景图片自适应
-          backgroundPosition: 'center', // 背景居中显示
-          position: 'relative', // 让 Paper 层级在背景之上
+          backgroundSize: 'cover', 
+          backgroundPosition: 'center', 
+          position: 'relative', 
         }}
       >
                   {isUsernameLogin ? <UsernameLogin /> : <EmailLogin />}

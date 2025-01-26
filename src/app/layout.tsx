@@ -1,4 +1,3 @@
-// b2c-frontend\src\app\layout.tsx
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -6,6 +5,7 @@ import { Provider } from 'react-redux';
 import { store } from '../redux/store';
 import  Auth  from '../auth/auth';
 import "../styles/globals.css"
+import MainLayout from '@/layouts/mainLayout';
 
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -42,7 +42,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Provider store={store}>
           {/* <main> */}
           <Auth>
+            <MainLayout>
             {children}
+            </MainLayout>
             </Auth>
             {/* </main> */}
         </Provider>

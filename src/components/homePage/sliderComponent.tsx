@@ -6,7 +6,7 @@ import "slick-carousel/slick/slick-theme.css";
 import { useState } from "react";
 import Image from "next/image";
 
-export default function SliderComponents() {
+export default function SliderComponent() {
   const sliderSettings = {
     dots: true,
     infinite: true,

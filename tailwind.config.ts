@@ -12,6 +12,22 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      fontFamily: {
+        custom: [
+          '"PingFang SC"',
+          '"Helvetica Neue"',
+          'Helvetica',
+          '"Hiragino Sans GB"',
+          '"Microsoft YaHei"',
+          '"微软雅黑"',
+          'Arial',
+          'sans-serif'
+        ],
+        custom2:[
+          'AlibabaSans102v1TaoBao-Bold',
+          'sans-serif'
+        ]
+      },
     },
   },
   plugins: [],

@@ -1,8 +1,12 @@
 'use client'
 
+import { useRouter } from "next/navigation"
+
 export default function LoginHeaderComponent(){
+    const router=useRouter()
     return (
-        <div style={{
+        <div 
+        style={{
             display:"flex",
             width:"100%",
             height:"100px",
@@ -10,13 +14,16 @@ export default function LoginHeaderComponent(){
             // justifyContent:"center",
             alignItems:"center",
         }}>
-      <div style={{
-        marginLeft:"20px"
+      <div
+      onClick={() => {router.push("/")}}
+       style={{
+        marginLeft:"20px",
+        cursor:"pointer",
       }}>
      <img 
-     src="/images/logo.png"
+     src="/images/PBLOG.png"
      alt="logo"
-     width={120}
+     width={240}
      />
         </div>
 

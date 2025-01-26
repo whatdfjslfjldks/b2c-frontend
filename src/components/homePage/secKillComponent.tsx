@@ -91,10 +91,10 @@ export default function SecKillComponent() {
 </div>
 <div className='flex flex-row items-center mt-[10px]'>
 <div className='text-[#e93323] text-[16px] font-bold'>
-    $20
+&yen;20
 </div>
 <div className='text-[14px] text-[#a3a3a3] line-through ml-[6px]'>
-    $250
+&yen;250
 </div>
 </div>
     </div>
@@ -113,10 +113,10 @@ export default function SecKillComponent() {
 </div>
 <div className='flex flex-row items-center mt-[10px]'>
 <div className='text-[#e93323] text-[16px] font-bold'>
-    $20
+&yen;20
 </div>
 <div className='text-[14px] text-[#a3a3a3] line-through ml-[6px]'>
-    $250
+&yen;250
 </div>
 </div>
     </div>
@@ -136,10 +136,10 @@ export default function SecKillComponent() {
 </div>
 <div className='flex flex-row items-center mt-[10px]'>
 <div className='text-[#e93323] text-[16px] font-bold'>
-    $20
+&yen;20
 </div>
 <div className='text-[14px] text-[#a3a3a3] line-through ml-[6px]'>
-    $250
+&yen;250
 </div>
 </div>
     </div>

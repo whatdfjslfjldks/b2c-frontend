@@ -47,9 +47,9 @@ export default function TopSectionComponent() {
   return (
     <div className="flex flex-row w-full h-[96px] items-center pt-[16px] pb-[8px]">
       {/* Logo */}
-      <div onClick={() => router.push('/')} className="flex mt-2 cursor-pointer">
+      <div onClick={() => router.push('/')} className="flex mt-3 cursor-pointer">
         <Image
-          src="/images/logo.png"
+          src="/images/PBLOG.png"
           alt="logo"
           width={200}
           height={0}
@@ -59,7 +59,7 @@ export default function TopSectionComponent() {
 
       {/* 导航栏 */}
       <div className="flex flex-row ml-[20px] w-[500px]">
-        <div className="mr-[20px] cursor-pointer hover:text-[#ff5000]">
+        <div onClick={() => router.push('/productClassify')} className="mr-[20px] cursor-pointer hover:text-[#ff5000]">
           产品分类
         </div>
         <div className="mr-[20px] cursor-pointer hover:text-[#ff5000]">
