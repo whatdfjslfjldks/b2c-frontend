@@ -114,13 +114,18 @@ export default function FlashSale() {
 
           {/* 限时秒杀图片 */}
           <div className="flex flex-row justify-center items-center w-full h-[128px] bg-[url('/images/seckill-back.png')]">
-            <img src="/images/seckill-title.png" alt="" />
+            <Image
+            src="/images/seckill-title.png"
+             alt="pic"
+             width={200}
+             height={48}
+              />
           </div>
           {/* 倒计时 */}
           <div className="flex flex-row w-full h-[80px]">
-            <div className="flex flex-row items-center w-[296px] h-[80px] bg-[url('/images/seckill-slide-back.png')]">
+            <div className="flex flex-row items-center bg-no-repeat w-[300px] h-[80px] bg-[url('/images/seckill-slide-back.png')]">
               {/* 闹钟图片 */}
-              <div className="ml-[26px] text-[24px] text-[#fff] font-bold w-[61px] h-[60px] bg-[url('/images/seckill-slide-clock.png')]">
+              <div className="ml-[26px] text-[24px] text-[#fff] font-bold bg-no-repeat w-[61px] h-[60px] bg-[url('/images/seckill-slide-clock.png')]">
                 <div className="mt-[12px]">00:00</div>
               </div>
 
