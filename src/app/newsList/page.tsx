@@ -3,6 +3,9 @@
 import MainLayout from "@/layouts/mainLayout"
 import { useRouter } from "next/navigation"
 import { Breadcrumbs } from "@mui/material"
+import BottomComponent from "@/components/bottom/bottomComponent"
+import NewsListComponent from "@/components/newsList/newsListComponent"
+import HotNewsComponent from "@/components/newsList/hotNewsComponent"
 
 
 
@@ -22,12 +25,29 @@ export default function NewsList(){
     </Breadcrumbs>
 </div>
 
+{/* 新闻列表和热点资讯 */}
+<div className="flex flex-row  h-[1000px]">
+
+{/* 文章列表 */}
+<div className="flex p-2 w-[70%] h-full  ">
+    <NewsListComponent/>
+</div>
+{/* 热点资讯 */}
+<div className="flex p-2 w-[30%] h-full">
+    <HotNewsComponent/>
+    </div>
+    
+
+</div>
 
 
 
 
 
 
+
+
+<BottomComponent/>
 
             </div>
 
