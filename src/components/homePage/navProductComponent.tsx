@@ -1,4 +1,5 @@
 import React from 'react';
+import { useRouter } from 'next/navigation';
 
 interface MenuItem {
   id: number;
@@ -13,6 +14,7 @@ interface NavbarProps {
 }
 
 const NavProductComponent: React.FC<NavbarProps> = ({ selectedKey, setSelectedKey }) => {
+ const router = useRouter();
   const menuItems: MenuItem[] = [
     { id: 1, label: '猜你喜欢', icon: '/images/like.png' },
     { id: 2, label: '运动户外', icon: '/images/sport.png' },
@@ -43,7 +45,7 @@ const NavProductComponent: React.FC<NavbarProps> = ({ selectedKey, setSelectedKe
           </div>
         </div>
       ))}
-      <div className="border border-[#c6c6c6] ml-auto text-[#818181] cursor-pointer w-[58px] h-[24px] text-[12px] flex justify-center items-center">
+      <div onClick={()=>router.push("/productClassify")} className="border border-[#c6c6c6] ml-auto text-[#818181] cursor-pointer w-[58px] h-[24px] text-[12px] flex justify-center items-center">
         更多&nbsp;{">"}
       </div>
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef,useEffect } from "react";
 import Image from "next/image";
 import {
   TextField,
@@ -11,8 +11,19 @@ import {
   IconButton,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import DeleteIcon from "@mui/icons-material/Delete"; // 导入垃圾桶图标
+import DeleteIcon from "@mui/icons-material/Delete"; 
 import { useRouter } from "next/navigation";
+
+
+
+const menuKey: { [key: string]: number } = {
+  productClassify: 1,   // 产品分类
+  flashSale: 2,          // 限时秒杀
+  preSale: 3,            // 限时预售
+  newsList: 4,           // 新闻列表
+  aboutUs: 5,            // 关于我们
+};
+
 export default function TopSectionComponent() {
   const [open, setOpen] = useState(false);
   const [historySearch, setHistorySearch] = useState<string[]>([
@@ -20,8 +31,9 @@ export default function TopSectionComponent() {
     "React",
     "Next.js",
   ]); // 模拟历史搜索
-  const [isHovered, setIsHovered] = useState(false); // 用于检测鼠标是否悬停
-  const containerRef = useRef<HTMLDivElement>(null); // 获取搜索框外部容器的引用
+  const [isHovered, setIsHovered] = useState(false); 
+  const containerRef = useRef<HTMLDivElement>(null); 
+  const [selectedMenu,setSelectedMenu]=useState<number|null>(null);
   const router=useRouter();
   function handleSearch() {
     console.log("Search");
@@ -44,6 +56,11 @@ export default function TopSectionComponent() {
     setHistorySearch([]); // 清空历史搜索
   }
 
+  useEffect(() => {
+    const val=window.location.pathname.split('/')[1];
+    setSelectedMenu(menuKey[val]);
+  }, []);
+
   return (
     <div className="flex flex-row w-full h-[96px] items-center pt-[16px] pb-[8px]">
       {/* Logo */}
@@ -52,26 +69,26 @@ export default function TopSectionComponent() {
           src="/images/PBLOG.png"
           alt="logo"
           width={200}
-          height={0}
-          layout="intrinsic"
+          height={200}
+          // layout="intrinsic"
         />
       </div>
 
       {/* 导航栏 */}
       <div className="flex flex-row ml-[20px] w-[500px]">
-        <div onClick={() => router.push('/productClassify')} className="mr-[20px] cursor-pointer hover:text-[#ff5000]">
+        <div onClick={() => router.push('/productClassify')} className={`mr-[20px] cursor-pointer hover:text-[#ff5000] ${selectedMenu===1 && 'text-[#ff5000]' } `}>
           产品分类
         </div>
-        <div className="mr-[20px] cursor-pointer hover:text-[#ff5000]">
+        <div onClick={() => router.push('/flashSale')} className={`mr-[20px] cursor-pointer hover:text-[#ff5000] ${selectedMenu===2 && 'text-[#ff5000]' }`}>
           限时秒杀
         </div>
-        <div className="mr-[20px] cursor-pointer hover:text-[#ff5000]">
+        <div onClick={() => router.push('/preSale')} className={`mr-[20px] cursor-pointer hover:text-[#ff5000] ${selectedMenu===3 && 'text-[#ff5000]' }`}>
           限时预售
         </div>
-        <div className="mr-[20px] cursor-pointer hover:text-[#ff5000]">
+        <div onClick={() => router.push('/newsList')} className={`mr-[20px] cursor-pointer hover:text-[#ff5000] ${selectedMenu===4 && 'text-[#ff5000]' }`}>
           新闻列表
         </div>
-        <div className="mr-[20px] cursor-pointer hover:text-[#ff5000]">
+        <div onClick={() => router.push('/aboutUs')} className={`mr-[20px] cursor-pointer hover:text-[#ff5000] ${selectedMenu===5 && 'text-[#ff5000]' }`}>
           关于我们
         </div>
       </div>
@@ -79,7 +96,7 @@ export default function TopSectionComponent() {
       {/* 搜索框 */}
       <div
         ref={containerRef}
-        className="flex flex-row justify-center ml-[80px] items-center w-[400px]"
+        className="flex flex-row justify-center ml-[auto] items-center w-[400px]"
       >
         <TextField
           variant="outlined"

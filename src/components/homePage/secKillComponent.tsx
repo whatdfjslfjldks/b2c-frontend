@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import moment from 'moment-timezone';
+import { useRouter } from 'next/navigation';
 
 export default function SecKillComponent() {
   const deadline = "2025-01-25T14:30:00+08:00"; // 设置截止时间
+  const router = useRouter();
 
   const [timeLeft, setTimeLeft] = useState(0);
 
@@ -146,7 +148,7 @@ export default function SecKillComponent() {
 {/* ----------------- */}
 
         {/* 更多按钮 */}
-        <div className="flex items-center ml-[20px] text-[#007bff] cursor-pointer hover:text-[#0056b3]">
+        <div onClick={()=>router.push('/productClassify')} className="flex items-center ml-[20px] text-[#007bff] cursor-pointer hover:text-[#0056b3]">
           <span>查看更多</span>
         </div>
 

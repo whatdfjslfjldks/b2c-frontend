@@ -7,7 +7,7 @@ import { Tooltip } from "@mui/material";
 
 export default function FloatMenuComponent() {
   return (
-    <div className="fixed top-1/2 right-0 transform -translate-y-1/2 z-999">
+    <div className="fixed top-1/2 right-0 transform -translate-y-1/2 z-50">
       {/* 悬浮侧边栏 */}
       <div className="flex flex-col items-center justify-center bg-white shadow-lg rounded-tl-xl rounded-bl-xl w-[50px] h-auto p-2 space-y-3">
         {/* 购物车图标 */}

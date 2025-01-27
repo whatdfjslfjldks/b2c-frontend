@@ -7,7 +7,7 @@ import TopSectionComponent from "@/components/header/topSectionComponent"
 
 export default function MainLayout(props: { children: React.ReactNode }) {
     return (
-        <div>
+        <div> 
 
 <FloatMenuComponent />
       <NavComponent />
@@ -15,8 +15,8 @@ export default function MainLayout(props: { children: React.ReactNode }) {
       <div className="pl-[28px] pr-[28px]">
         {/* logo,搜索框，广告动画 */}
         <TopSectionComponent />
-            {props.children}
             </div>
+            {props.children}
         </div>
     )
 }

@@ -1,6 +1,9 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 export default function FeaturedRecComponent() {
+  const router = useRouter();
   return (
     <div className="flex  flex-col p-[15px] w-full  h-[270px] mt-[20px]">
       <div className="flex flex-row  items-center">
@@ -9,7 +12,7 @@ export default function FeaturedRecComponent() {
         <div className="text-[14px] text-[#8b8b8b] font-custom ml-[10px]">
           诚意推荐 品质商品
         </div>
-        <div className="border border-[#c6c6c6] ml-auto text-[#818181] cursor-pointer w-[58px] h-[24px] text-[12px] flex justify-center items-center">
+        <div  onClick={()=>router.push('/productClassify')} className="border border-[#c6c6c6] ml-auto text-[#818181] cursor-pointer w-[58px] h-[24px] text-[12px] flex justify-center items-center">
           更多&nbsp;{">"}
         </div>
       </div>
