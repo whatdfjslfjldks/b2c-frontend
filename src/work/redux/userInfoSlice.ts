@@ -6,8 +6,8 @@ interface User {
   userId: number;
   username: string;
   role: string;
-  accessToken:string;
-  refreshToken:string;
+  accessToken: string;
+  refreshToken: string;
   avatarUrl: string;
 }
 
@@ -59,11 +59,20 @@ const userSlice = createSlice({
     setError: (state, action) => {
       state.error = action.payload;
     },
+    // 从 localStorage 获取数据并存入状态
+    loadUserFromLocalStorage: (state) => {
+      console.log("here from redux")
+      const user = getUserFromLocalStorage();
+      if (user) {
+        state.userInfo = user;
+      }
+      console.log("userInfo",state.userInfo)
+    },
   },
 });
 
 // 导出 actions
-export const { setUserInfo, setLoading, setError } = userSlice.actions;
+export const { setUserInfo, setLoading, setError, loadUserFromLocalStorage } = userSlice.actions;
 
 // 导出 reducer
 export default userSlice.reducer;
