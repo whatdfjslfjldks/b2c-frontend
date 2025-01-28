@@ -1,16 +1,20 @@
 "use client";
 
 import BottomComponent from "@/components/bottom/bottomComponent";
+import ProductInfo from "@/components/product/productInfo";
 import MainLayout from "@/layouts/mainLayout";
 import { useParams, useRouter } from "next/navigation";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export default function ProductDetail() {
   const router = useRouter();
-  const productId = useParams().id;
+  const id = useParams().id;
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isExist,setIsExist]=useState<boolean>(false);
+  const [productId, setProductId] = useState<number | null>(null);
 
-  const [zoomPosition, setZoomPosition] = useState({
+
+    const [zoomPosition, setZoomPosition] = useState({
     x: 0,
     y: 0,
     showZoom: false,
@@ -48,10 +52,43 @@ export default function ProductDetail() {
     setZoomPosition({ ...zoomPosition, showZoom: false });
   };
 
-  return (
+
+  //TODO react钩子只能以相同的顺序调用，中间不能用类似下面if渲染分割
+//   判断商品是否存在
+  useEffect(()=>{
+    try{
+       const decodedId = decodeURIComponent(id as string);  
+
+       const pid = parseInt(decodedId);  
+       setProductId(pid);
+       if(Number.isNaN(pid) || pid===null){
+           setIsExist(false);
+           router.push("/error/noitem");
+       }else{
+           console.log("DSfsdf: ",pid)
+           setIsExist(true)
+       }
+    }catch(error){
+        if(process.env.NODE_ENV === "development"){
+            console.error("Error decoding ID:", error);
+        }
+        router.push("/error/noitem");
+    }
+  },[id,router])
+
+  if (!isExist) {
+    return (
+        <div>
+            正在查找商品
+        </div>
+    );
+  }
+
+
+return (
     <div>
       <MainLayout>
-        <div className="flex flex-col pl-[28px] pr-[28px] mt-[20px] w-full">
+        <div className="flex flex-col pl-[60px] pr-[60px] mt-[20px] w-full">
           <div className="flex flex-row w-full h-[550px]">
             {/* 图片 */}
             <div className="flex flex-row w-[45%] h-full p-2 relative">
@@ -127,9 +164,9 @@ export default function ProductDetail() {
                   分&nbsp;&nbsp;类:
                 </div>
                 {/* 具体类别 */}
-                <div className="flex flex-col ml-[10px] h-[300px] w-[550px] overflow-y-scroll">
-                  <div className="flex border w-[500px] mb-[10px] border-[#dadde0] bg-[#fff] text-[20px] rounded-sm font-custom p-2 hover:text-[#ff5000] hover:border hover:border-[#ff5000] cursor-pointer">
-                    <div className="line-clamp-1">
+                <div className="flex flex-col ml-[10px] h-[300px] w-[500px] overflow-y-scroll scrollbar-hide ">
+                  <div className="flex border w-[450px] mb-[10px] border-[#dadde0] bg-[#fff] text-[20px] rounded-sm font-custom p-2 hover:text-[#ff5000] hover:border hover:border-[#ff5000] cursor-pointer">
+                    <div className="text-[16px] font-custom text-[#11192d] line-clamp-1">
                       是到付哈的说法都是开发哈德数据库是到付哈的说法都是开发哈德数据库是到付哈的说法都是开发哈德数据库
                     </div>
                   </div>
@@ -165,23 +202,16 @@ export default function ProductDetail() {
                 </div>
               </div>
 
-{/* 加入购物车和购买按钮 */}
-<div className="flex flex-row items-center w-full mt-[20px] h-[50px]"> 
+              {/* 加入购物车和购买按钮 */}
+              <div className="flex flex-row items-center w-full mt-[20px] h-[50px]">
+                <div className="flex items-center w-[100px] justify-center bg-[#e93323] border border-[#e93323] h-[50px] p-2 rounded-md cursor-pointer">
+                  <div className="text-[14px] text-[#fff]">加入购物车</div>
+                </div>
 
-<div className="flex items-center w-[100px] justify-center bg-[#e93323] border border-[#e93323] h-[50px] p-2 rounded-md cursor-pointer">
-    <div className="text-[14px] text-[#fff]">
-        加入购物车
-        </div>
-</div>
-
-<div className="flex items-center w-[100px] ml-[40px] justify-center bg-[#fff] border border-[#e93323] h-[50px] p-2 rounded-md cursor-pointer">
-    <div className="text-[14px] text-[#e93323]">
-        立即购买
-        </div>
-</div>
-
-</div>
-
+                <div className="flex items-center w-[100px] ml-[40px] justify-center bg-[#fff] border border-[#e93323] h-[50px] p-2 rounded-md cursor-pointer">
+                  <div className="text-[14px] text-[#e93323]">立即购买</div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -197,6 +227,12 @@ export default function ProductDetail() {
               }}
             />
           )}
+
+
+{/* 商品详情部分，用户评价等 */}
+<ProductInfo productId={productId as number}/>
+
+
         </div>
       </MainLayout>
 
@@ -204,3 +240,4 @@ export default function ProductDetail() {
     </div>
   );
 }
+

@@ -26,9 +26,17 @@ export default {
         custom2:[
           'AlibabaSans102v1TaoBao-Bold',
           'sans-serif'
+        ],
+        custom3:[
+          'PingFangSC-Semibold'
+        ],
+        custom4:[
+         'PingFangSC-Regular'
         ]
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require('tailwind-scrollbar-hide'),
+  ],
 } satisfies Config;

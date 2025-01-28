@@ -17,6 +17,7 @@
     "@mui/lab": "^6.0.0-beta.23",
     "@mui/material": "^6.4.0",
     "@reduxjs/toolkit": "^2.5.0",
+    "antd": "^5.23.3",
     "moment-timezone": "^0.5.46",
     "next": "15.1.4",
     "react": "^18.3.1",
@@ -29,7 +30,8 @@
     "react-slick": "^0.30.3",
     "react-toastify": "^11.0.3",
     "react-zoom-pan-pinch": "^3.6.1",
-    "slick-carousel": "^1.8.1"
+    "slick-carousel": "^1.8.1",
+    "tailwind-scrollbar-hide": "^2.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

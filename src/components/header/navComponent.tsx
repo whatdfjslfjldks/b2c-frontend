@@ -5,6 +5,9 @@ import StarBorderIcon from "@mui/icons-material/StarBorder";
 import { Menu, MenuItem, Popover, Typography } from "@mui/material";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
+import { DownOutlined, SmileOutlined } from '@ant-design/icons';
+import type { MenuProps } from 'antd';
+import { Dropdown, Space } from 'antd';
 
 export default function NavComponent() {
   const [region, setRegion] = useState("中国大陆");
@@ -44,9 +47,32 @@ export default function NavComponent() {
     setAnchorEl2(null);
   }
 
+ const handleHelpSelect: MenuProps['onClick'] = (e) =>{
+  // setHelpOption((e.domEvent.target as HTMLElement).innerText);
+  }
+
+  const items: MenuProps['items'] = [
+    {
+      key: '1',
+      label: '官方客服',
+    },
+    {
+      key: '2',
+      label: '消息中心',
+    },
+    {
+      key: '3',
+      label: '意见反馈',
+    },
+    {
+      key: '4',
+      label: '举报中心',
+    },
+  ];
+
   return (
-    <div className="flex bg-[] text-[12px] flex-row w-full items-center h-[35px] pl-[48px] pr-[48px] border-b-[1px] border-[#ddd]">
-      <div className="mr-[12px] text-[#1f1f1f] cursor-pointer hover:text-[#ff5000] ">
+    <div className="flex bg-[] text-[14px] flex-row w-full items-center h-[35px] pl-[48px] pr-[48px] border-b-[1px] border-[#ddd]">
+      <div className="mr-[12px] text-[#1f1f1f] text-[14px] cursor-pointer hover:text-[#ff5000] ">
         <select defaultValue={region} className="cursor-pointer">
           <option value="CN">{region}</option>
         </select>
@@ -75,7 +101,7 @@ export default function NavComponent() {
                   rounded-full mr-[5px]" />
             )
                 } */}
-              <span className="w-[115px] overflow-hidden whitespace-nowrap text-ellipsis">
+              <span className="w-[115px] text-[14px] overflow-hidden whitespace-nowrap text-ellipsis">
                 {userInfo?.username}
               </span>
             </div>
@@ -136,14 +162,14 @@ export default function NavComponent() {
           <>
             <div
               onClick={handleLogin}
-              className="text-[#ff5000] mr-[4px] cursor-pointer "
+              className="text-[#ff5000] text-[14px] mr-[4px] cursor-pointer "
             >
               亲，请登录
             </div>
 
             <div
               onClick={handleLogin}
-              className="text-[#1f1f1f] cursor-pointer hover:text-[#ff5000] "
+              className="text-[#1f1f1f] text-[14px]  cursor-pointer hover:text-[#ff5000] "
             >
               免费注册
             </div>
@@ -151,58 +177,28 @@ export default function NavComponent() {
         )}
       </div>
 
-      <div className="text-[#1f1f1f] cursor-pointer">网页无障碍</div>
+      <div className="text-[#1f1f1f] text-[14px] cursor-pointer">网页无障碍</div>
 
       <div className="flex flex-row ml-auto">
-        <div className="text-[#1f1f1f] mr-[12px] cursor-pointer hover:text-[#ff5000]">
+        <div className="text-[#1f1f1f] text-[14px] mr-[12px] cursor-pointer hover:text-[#ff5000]">
           <ShoppingCartOutlinedIcon sx={{ fontSize: 18 }} />
           购物车
         </div>
-        <div className="text-[#1f1f1f] mr-[12px] cursor-pointer hover:text-[#ff5000]">
+        <div className="text-[#1f1f1f] text-[14px]  mr-[12px] cursor-pointer hover:text-[#ff5000]">
           <StarBorderIcon sx={{ fontSize: 18 }} />
           收藏夹
         </div>
         <div className="cursor-pointer hover:text-[#ff5000]">
-          <div onClick={handleHelpCenterClick}>帮助中心</div>
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleClose}
-          >
-            {/* 菜单项 */}
-            <MenuItem
-              onClick={() => handleSelect(1)}
-              sx={{ fontSize: "12px", color: "#333" }}
-            >
-              <Typography variant="body2" sx={{ fontSize: "12px" }}>
-                官方客服
-              </Typography>
-            </MenuItem>
-            <MenuItem
-              onClick={() => handleSelect(2)}
-              sx={{ fontSize: "12px", color: "#333" }}
-            >
-              <Typography variant="body2" sx={{ fontSize: "12px" }}>
-                消息中心
-              </Typography>
-            </MenuItem>
-            <MenuItem
-              onClick={() => handleSelect(3)}
-              sx={{ fontSize: "12px", color: "#333" }}
-            >
-              <Typography variant="body2" sx={{ fontSize: "12px" }}>
-                意见反馈
-              </Typography>
-            </MenuItem>
-            <MenuItem
-              onClick={() => handleSelect(4)}
-              sx={{ fontSize: "12px", color: "#333" }}
-            >
-              <Typography variant="body2" sx={{ fontSize: "12px" }}>
-                举报中心
-              </Typography>
-            </MenuItem>
-          </Menu>
+          {/* <div onClick={handleHelpCenterClick}>帮助中心</div> */}
+
+          <Dropdown
+                        menu={{ items, onClick: handleHelpSelect }} // 通过 onClick 获取 label
+                        trigger={['hover']}
+                    >
+                        <div className="text-[#11192d] text-[14px] font-custom">
+                            帮助中心 <DownOutlined />
+                        </div>
+                    </Dropdown>
         </div>
       </div>
     </div>
