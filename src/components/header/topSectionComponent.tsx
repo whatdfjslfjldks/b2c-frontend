@@ -65,7 +65,7 @@ export default function TopSectionComponent() {
     <div className="flex flex-row w-full h-[96px] items-center pt-[16px] pb-[8px]">
       {/* Logo */}
       <div onClick={() => router.push('/')} className="flex mt-3 cursor-pointer">
-        <Image
+        <img
           src="/images/PBLOG.png"
           alt="logo"
           width={200}
