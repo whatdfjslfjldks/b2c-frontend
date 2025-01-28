@@ -111,7 +111,7 @@ const CartTable: React.FC = () => {
                 <TableCell>
                   <Box display="flex" alignItems="center">
                     <Avatar src={item.imageUrl} alt={item.name} style={{ marginRight: '10px' }} />
-                    <Typography variant="body2">{item.name}<br/><small>{item.description}</small></Typography>
+                    <Typography component="div" variant="body2">{item.name}<br /><small>{item.description}</small></Typography>
                   </Box>
                 </TableCell>
                 <TableCell align="right">{item.price}</TableCell>
@@ -126,7 +126,7 @@ const CartTable: React.FC = () => {
                     >
                       -
                     </Button>
-                    <Typography  sx={{
+                    <Typography component="div" sx={{
                         fontSize: 16,
                         color:'#282828',
                         margin: '0 8px'
@@ -147,9 +147,9 @@ const CartTable: React.FC = () => {
                 }} align="center">&yen;{item.price * item.quantity}</TableCell>
                 <TableCell align="center">
                   <div onClick={() => {}} className='cursor-pointer'>
-                  <DeleteOutlineIcon sx={{
-                    fontSize: 28,
-                  }}/>
+                    <DeleteOutlineIcon sx={{
+                      fontSize: 28,
+                    }}/>
                   </div>
                 </TableCell>
               </TableRow>
@@ -170,14 +170,14 @@ const CartTable: React.FC = () => {
 
       <Grid container alignItems="center" justifyContent={'flex-end'}>
         <Grid item>
-          <Typography sx={{
+          <Typography component="div" sx={{
             marginRight: '20px',
           }} className='flex flex-row items-center cursor-pointer'>
             <div className='text-[16px] text-[#282828]'>
-            合计：
+              合计：
             </div>
             <div className='text-[22px] text-[#e93323]'>&yen;{calculateTotal()}</div>
-            </Typography>
+          </Typography>
         </Grid>
         <Grid item>
           <Button

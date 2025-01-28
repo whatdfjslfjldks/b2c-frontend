@@ -1,10 +1,12 @@
 'use client'
 
 import BottomComponent from "@/components/bottom/bottomComponent";
-import CartTable from "@/components/shoppingCart/cartTable";
 import MainLayout from "@/layouts/mainLayout"
 import { Breadcrumbs } from "@mui/material";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
+
+const CartTable = dynamic(() => import('@/components/shoppingCart/cartTable'), { ssr: false });
 
 export default function ShoppingCart(){
     const router = useRouter();

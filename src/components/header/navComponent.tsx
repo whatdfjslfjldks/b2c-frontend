@@ -180,7 +180,7 @@ export default function NavComponent() {
       <div className="text-[#1f1f1f] text-[14px] cursor-pointer">网页无障碍</div>
 
       <div className="flex flex-row ml-auto">
-        <div className="text-[#1f1f1f] text-[14px] mr-[12px] cursor-pointer hover:text-[#ff5000]">
+        <div onClick={()=>router.push("/shoppingCart")} className="text-[#1f1f1f] text-[14px] mr-[12px] cursor-pointer hover:text-[#ff5000]">
           <ShoppingCartOutlinedIcon sx={{ fontSize: 18 }} />
           购物车
         </div>
