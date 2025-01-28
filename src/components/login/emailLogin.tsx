@@ -7,7 +7,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { fetchAPI } from '@/api/fetchApi';
 import { useRouter } from 'next/navigation';
 import { useDispatch } from 'react-redux';
-import { setUserInfo } from '../../redux/userInfoSlice';
+import { setUserInfo } from '../../work/redux/userInfoSlice';
 
 export default function EmailLogin() {
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +41,7 @@ export default function EmailLogin() {
       body:JSON.stringify({
         email:emailPrefix+selectedDomain,
       })
-    })
+    },undefined,false)
     .then((data)=>{
       if(data.code===200){
         setError("")
@@ -95,7 +95,7 @@ export default function EmailLogin() {
         email:emailPrefix+selectedDomain,
         verify_code:verifyCode
       })
-    })
+    },undefined,false)
     .then((data)=>{
       if(data.code===200){
         dispatch(setUserInfo(data.data))

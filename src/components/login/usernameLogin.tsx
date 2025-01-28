@@ -5,7 +5,7 @@ import { TextField, Button, Grid, Typography, Box, Container, Paper, InputAdornm
 import { AccountCircle, Lock } from '@mui/icons-material';
 import { fetchAPI } from '@/api/fetchApi';
 import { useDispatch } from 'react-redux';
-import { setUserInfo } from '../../redux/userInfoSlice';
+import { setUserInfo } from '../../work/redux/userInfoSlice';
 import { useRouter } from 'next/navigation'
 
 export default function UsernameLogin() {
@@ -28,8 +28,9 @@ export default function UsernameLogin() {
             username: username, 
             password:password 
           }),
-        })
+        },undefined,false)
         .then((data) => {
+          // console.log("dsfadsf: ",data)
           if(data.code === 200){
             // console.log('Response:', data);
             setError("");

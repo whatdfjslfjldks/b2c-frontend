@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { Provider } from 'react-redux';
-import { store } from '../redux/store';
-import  Auth  from '../auth/auth';
+import { store } from '../work/redux/store';
+import { DispatchProvider } from "@/auth/auth";
 import "../styles/globals.css"
 
 
@@ -12,6 +12,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    // console.log("useEffect");
     // 判断设备是否是手机
     const userAgent = navigator.userAgent.toLowerCase();
     const mobile = /iphone|ipod|android|windows phone|blackberry|mobile|tablet/.test(userAgent);
@@ -19,9 +20,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     if (mobile){
       return;
     }
-    // if (userInfo){
-    //   console.log("12312")
-    // }
   }, []);
 
   if (isMobile) {
@@ -41,9 +39,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <Provider store={store}>
           {/* <main> */}
-          <Auth>
+          <DispatchProvider>
             {children}
-            </Auth>
+            </DispatchProvider>
             {/* </main> */}
         </Provider>
       </body>

@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
-import { Menu, MenuItem, Popover, Typography } from "@mui/material";
+import {Popover } from "@mui/material";
 import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
-import { DownOutlined, SmileOutlined } from '@ant-design/icons';
+import { RootState } from "@/work/redux/store";
+import { DownOutlined} from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { Dropdown, Space } from 'antd';
+import { Dropdown } from 'antd';
 
 export default function NavComponent() {
   const [region, setRegion] = useState("中国大陆");
@@ -78,7 +78,7 @@ export default function NavComponent() {
         </select>
       </div>
 
-      <div className="flex flex-row justify-center w-[115px] mr-[12px] text-[#1f1f1f]">
+      <div className="flex flex-row justify-center w-[150px] mr-[12px] text-[#1f1f1f]">
         {isLogin ? (
           <>
             <div

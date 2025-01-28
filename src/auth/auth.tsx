@@ -1,32 +1,31 @@
 'use client';
 
 
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../redux/store';
-import { setUserInfo, setLoading, setError } from '../redux/userInfoSlice';
+import React, { createContext, useContext } from "react";
+import { useDispatch } from 'react-redux';
 
 
+const DispatchContext = createContext<any>(null);
 
 
-const Auth = ({ children }: { children: React.ReactNode }) => {
-
-    const { userInfo, loading, error } = useSelector((state: RootState) => state.user);
-
-
-    useEffect(()=>{
-      // if (userInfo){
-      //   console.log("12312:",userInfo)
-      // }
-      // console.log("12")
-    },[])
+export const DispatchProvider = (props: { children: React.ReactNode }) => {
+  const dispatch = useDispatch();
 
   return (
-    <div>
-      {children}
-    </div>
+    <DispatchContext.Provider value={dispatch}>
+      {props.children}
+    </DispatchContext.Provider>
   );
 };
 
-export default Auth;
+// 创建一个自定义 hook 来方便地访问 dispatch
+export const useAppDispatch = () => {
+  const dispatch = useContext(DispatchContext);
+  if (!dispatch) {
+    throw new Error("useAppDispatch must be used within a DispatchProvider");
+  }
+  return dispatch;
+};
+
+
 
