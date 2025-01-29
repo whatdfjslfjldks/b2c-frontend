@@ -9,14 +9,15 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import BottomComponent from "@/components/bottom/bottomComponent";
 import useSWR from 'swr'
 import { fetchAPI } from "@/api/fetchApi";
-import { APIResponse } from "@/types/dto/fetchApiDTO";
-import { productsInfo } from "@/types/vo/productInfoVO";
-import { menuItemsClassify } from "@/types/enum/enum";
-import { productsList } from "@/types/dto/product";
+import { APIResponse } from "@/model/dto/fetchApiDTO";
+import { productsInfo } from "@/model/vo/productInfoVO";
+import { menuItemsClassify } from "@/model/enum/enum";
+import { productsList } from "@/model/dto/product";
 
 
  // 模拟加载更多的商品数据
   const loadMoreProducts = async (url:string)=> {
+    // console.log("查询的url： ",url)
     return fetchAPI(url).then((data: APIResponse)=>{
       if(data.code===200){
         return data.data as productsList;
@@ -43,19 +44,18 @@ export default function ProductClassify() {
   const router = useRouter();
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [productList, setProductList]=useState<productsInfo[]>([])
-  const [totalPage,setTotalPage]=useState<number>(1)
+  // const [totalPage,setTotalPage]=useState<number>(1)
 
   function handleNextPage(){
-    // console.log(state.currentPage)
-    setState({
-      ...state,
-      currentPage:state.currentPage+1,
-      isSame:true,
-      isSort:false
-    })
+    // console.log("handleNextPage")
+      setState({
+        ...state,
+        currentPage:state.currentPage+1,
+        isSame:true,
+        isSort:false
+      })
   }
 
-  // currentPage=${state.currentPage}&pageSize=${state.pageSize}&categoryId=${state.selectedKey}&sort=${state.shaixuan}
   const { data, error, isLoading } = 
   useSWR(`/product-server/getProductList?currentPage=${state.currentPage}&pageSize=${state.pageSize}&categoryId=${state.selectedKey}&sort=${state.shaixuan}`,
    loadMoreProducts,
@@ -67,45 +67,47 @@ export default function ProductClassify() {
 
    // TODO 因为data初始值会超发一次请求（第一次，data为undefined）
    useEffect(() => {
-    // console.log("isSame: ",state.isSame)
-    // 排除掉data初始undefined情况
-    if(data!==undefined){
-      if(data===null){
-        return
-      }
-      // 判断是否是同一种类
-      if(state.isSame){
-        if (state.isSort){
-          if (data.productList===null){
-            setHasMore(false)
-            setProductList([])
-          }else{
-            setHasMore(true)
-            setProductList(data.productList)
-          }
-          return
-        }
-        const total=Math.ceil(data.totalItems/state.pageSize)
-        setTotalPage(total)
-        if(data.currentPage>total){
-          setHasMore(false)
-          return
-        }
-        setProductList((prev)=>[...prev,...data.productList])
-        setHasMore(true)
-        return
-      }else{
-        if (data.productList===null){
-          setHasMore(false)
-          setProductList([])
-        }else{
-          setHasMore(true)
-          setProductList(data.productList)
-        }
-      }
-
+    // 排除掉 data 初始为 undefined 的情况
+    if (data === undefined) return;
+  
+    // 如果 data 为 null，说明没有数据返回，直接停止加载更多商品
+    if (data === null) {
+      setHasMore(false);
+      setProductList([]);
+      return;
     }
-  }, [data]);  
+  
+    const totalPages = Math.ceil(data.totalItems / state.pageSize); // 计算总页数
+    const isLastPage = data.currentPage === totalPages; // 判断是否已经是最后一页
+  
+    // 设置 hasMore 标志
+    const shouldHaveMore = !isLastPage;
+  
+    // 如果数据为空，清空商品列表并设置没有更多商品
+    if (data.productList === null || data.productList.length === 0) {
+      setHasMore(false);
+      setProductList([]);
+      return;
+    }
+  
+    // 判断是否是同一种类
+    if (state.isSame) {
+      if (state.isSort) {
+        // 排序情况下，直接设置新的商品列表
+        setHasMore(shouldHaveMore);
+        setProductList(data.productList);
+      } else {
+        // 非排序情况下，拼接新的商品列表
+        setProductList((prev) => [...prev, ...data.productList]);
+        setHasMore(shouldHaveMore);
+      }
+    } else {
+      // 如果是不同分类，重置商品列表并更新
+      setProductList(data.productList);
+      setHasMore(shouldHaveMore);
+    }
+  }, [data]);
+  
   
 
 
@@ -166,7 +168,8 @@ export default function ProductClassify() {
                 ...state,
                 shaixuan:0,
                 isSame:true,
-                isSort:true
+                isSort:true,
+                currentPage:1
               })}
               className={`cursor-pointer hover:text-[#e93323] text-[14px] font-custom ml-[10px] ${
                 state.shaixuan === 0 ? " text-[#e93323]" : "text-[#282828]"
@@ -180,7 +183,8 @@ export default function ProductClassify() {
                 ...state,
                 shaixuan:1,
                 isSame:true,
-                isSort:true
+                isSort:true,
+                currentPage:1
               })}
               className={`cursor-pointer hover:text-[#e93323] text-[14px] font-custom ml-[20px] ${
                 state.shaixuan === 1 ? "text-[#e93323]" : "text-[#282828]"
@@ -194,7 +198,8 @@ export default function ProductClassify() {
                 ...state,
                 shaixuan:2,
                 isSame:true,
-                isSort:true
+                isSort:true,
+                currentPage:1
               })}
               className={`cursor-pointer hover:text-[#e93323]  text-[14px] font-custom ml-[20px] ${
                 state.shaixuan === 2 ? " text-[#e93323]" : "text-[#282828]"
@@ -216,6 +221,7 @@ export default function ProductClassify() {
         next={handleNextPage}
         hasMore={hasMore}
         loader={<div className="text-center py-4">加载中...</div>}
+        // loader={<div></div>}
         endMessage={<div className="text-center py-4">没有更多商品了！</div>}
       >
         <div className="flex flex-wrap w-full ">

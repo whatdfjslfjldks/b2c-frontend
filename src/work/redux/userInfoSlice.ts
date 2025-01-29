@@ -61,12 +61,12 @@ const userSlice = createSlice({
     },
     // 从 localStorage 获取数据并存入状态
     loadUserFromLocalStorage: (state) => {
-      console.log("here from redux")
+      // console.log("here from redux")
       const user = getUserFromLocalStorage();
       if (user) {
         state.userInfo = user;
       }
-      console.log("userInfo",state.userInfo)
+      // console.log("userInfo",state.userInfo)
     },
     removeUserFromLocalStorage: (state) => {
       state.userInfo = null;

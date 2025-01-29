@@ -13,7 +13,7 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import DeleteIcon from "@mui/icons-material/Delete"; 
 import { useRouter } from "next/navigation";
-import { menuKeyTopSec } from "@/types/enum/enum";
+import { menuKeyTopSec } from "@/model/enum/enum";
 
 
 

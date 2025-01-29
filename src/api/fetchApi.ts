@@ -1,5 +1,5 @@
 import { isTokenValid } from "@/api/token"
-import { APIResponse } from "@/types/dto/fetchApiDTO";
+import { APIResponse } from "@/model/dto/fetchApiDTO";
 
 // 可选鉴权，默认不鉴权
 export function fetchAPI(

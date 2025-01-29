@@ -1,11 +1,12 @@
 "use client";
 
+import { fetchAPI } from "@/api/fetchApi";
 import BottomComponent from "@/components/bottom/bottomComponent";
 import Loading from "@/components/loading/loadingComponents";
 import ProductInfo from "@/components/product/productInfo";
 import MainLayout from "@/layouts/mainLayout";
-import { CircularProgress } from "@mui/material";
-import { Box } from "@mui/system";
+import { pImg, productDetail } from "@/model/vo/productInfoVO";
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 
@@ -13,11 +14,11 @@ export default function ProductDetail() {
   const router = useRouter();
   const id = useParams().id;
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isExist,setIsExist]=useState<boolean>(false);
+  const [isExist, setIsExist] = useState<boolean>(false);
   const [productId, setProductId] = useState<number | null>(null);
-
-
-    const [zoomPosition, setZoomPosition] = useState({
+  const [productInfo, setProductInfo]=useState<productDetail|null>(null)
+  const [selectImg,setSelectImg]=useState<pImg|null>(null)
+  const [zoomPosition, setZoomPosition] = useState({
     x: 0,
     y: 0,
     showZoom: false,
@@ -56,39 +57,78 @@ export default function ProductDetail() {
   };
 
 
-  //TODO react钩子只能以相同的顺序调用，中间不能用类似下面if渲染分割
-//   判断商品是否存在
-  useEffect(()=>{
-    try{
-       const decodedId = decodeURIComponent(id as string);  
-
-       const pid = parseInt(decodedId);  
-       setProductId(pid);
-       if(Number.isNaN(pid) || pid===null){
-           setIsExist(false);
-           router.push("/error/noitem");
-       }else{
-           console.log("DSfsdf: ",pid)
-           setIsExist(true)
-       }
-    }catch(error){
-        if(process.env.NODE_ENV === "development"){
-            console.error("Error decoding ID:", error);
+  // TODO 利用swr优化数据获取
+  const getProductDetail = async (id: number): Promise<productDetail | null> => {
+    try {
+      const data = await fetchAPI(`/product-server/getProductDetailById?productId=${id}`);
+      if (data.code === 200) {
+        // 返回商品详情
+        return data.data as productDetail;
+      } else {
+        if (process.env.NODE_ENV === "development") {
+          console.log('error:', data);
         }
-        router.push("/error/noitem");
+        return null;
+      }
+    } catch (error) {
+      if (process.env.NODE_ENV === "development") {
+        console.log('error:', error);
+      }
+      return null;
     }
-  },[id,router])
+  };
+
+  //TODO react钩子只能以相同的顺序调用，中间不能用类似下面if渲染分割
+  //   判断商品是否存在
+  useEffect(() => {
+    const fetchProductDetail = async () => {
+      try {
+        const decodedId = decodeURIComponent(id as string);  // 解码商品 ID
+        const pid = parseInt(decodedId);  // 转换为数字类型
+
+        setProductId(pid);
+
+        if (Number.isNaN(pid) || pid === null) {
+          setIsExist(false); // 如果 ID 无效，则设置商品不存在
+          router.push("/error/noitem"); // 跳转到错误页面
+        } else {
+          // 获取商品详情
+          const result = await getProductDetail(pid);
+
+          if (result !== null) {
+            setProductInfo(result); // 设置商品详情
+            // 默认大图为第一张
+            setSelectImg(result.product_img[0])
+            setIsExist(true); // 商品存在
+          } else {
+            setIsExist(false); // 商品不存在
+            router.push("/error/noitem"); // 跳转到错误页面
+          }
+        }
+      } catch (error) {
+        // console.error("解码商品 ID 时出错:", error);
+        router.push("/error/noitem"); // 错误跳转
+      }
+    };
+
+    fetchProductDetail(); // 调用异步方法
+  }, [id, router]); 
+
+  function handleImgClick(item: pImg){
+    // console.log(item)
+    setSelectImg(item)
+  }
+
 
   if (!isExist) {
     return (
       <div>
-        <Loading/>
+        <Loading />
       </div>
     );
   }
 
-
-return (
+  return (
     <div>
       <MainLayout>
         <div className="flex flex-col pl-[60px] pr-[60px] mt-[20px] w-full">
@@ -96,19 +136,21 @@ return (
             {/* 图片 */}
             <div className="flex flex-row w-[45%] h-full p-2 relative">
               {/* 图片列表 */}
-              <div className="flex flex-col w-[20%] p-1 h-full">
-                {Array(5)
-                  .fill("")
-                  .map((_, index) => (
+              <div className="flex flex-col items-center w-[20%] p-1 h-full">
+                {productInfo?.product_img.map((item, index) => (
                     <div
+                    onClick={()=>handleImgClick(item)}
                       key={index}
-                      className="border rounded-md border-[#e3e3e3] w-full h-[18%] mt-[5px] cursor-pointer"
+                      className="border rounded-md border-[#e3e3e3] overflow-hidden w-[90px] h-[90px] mt-[5px] cursor-pointer"
                     >
-                      <img
-                        src="/images/go.jpg"
-                        alt="pic"
-                        className="w-full h-full object-cover"
-                      />
+                 <Image
+                    src={`http://localhost:9000/${item.img_url}`}
+                    alt="product"
+                   width={90}
+                   height={90}
+                    objectFit="cover"
+                    className="rounded-lg"
+                  />
                     </div>
                   ))}
               </div>
@@ -121,7 +163,8 @@ return (
                 onMouseLeave={handleMouseLeave}
               >
                 <img
-                  src="/images/go.jpg"
+                  // src="/images/go.jpg"
+                  src={`http://localhost:9000/${selectImg?.img_url}`}
                   alt="Product Image"
                   className="border rounded-md border-[#e3e3e3] w-full h-full object-cover cursor-move"
                 />
@@ -223,7 +266,7 @@ return (
             <div
               className="absolute border rounded-md border-[#e3e3e3] top-[200px] left-[calc(45%+10px)] w-[450px] h-[450px] z-10"
               style={{
-                backgroundImage: `url(/images/go.jpg)`,
+                backgroundImage: `url(http://localhost:9000/${selectImg?.img_url})`,
                 backgroundPosition: `${zoomPosition.x}% ${zoomPosition.y}%`,
                 backgroundSize: "250%",
                 pointerEvents: "none",
@@ -231,11 +274,8 @@ return (
             />
           )}
 
-
-{/* 商品详情部分，用户评价等 */}
-<ProductInfo productId={productId as number}/>
-
-
+          {/* 商品详情部分，用户评价等 */}
+          <ProductInfo productId={productId as number} />
         </div>
       </MainLayout>
 
@@ -243,4 +283,3 @@ return (
     </div>
   );
 }
-

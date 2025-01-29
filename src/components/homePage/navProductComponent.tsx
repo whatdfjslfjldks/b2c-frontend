@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { menuItemsHomePage } from '@/types/enum/enum';
+import { menuItemsHomePage } from '@/model/enum/enum';
 
 interface NavbarProps {
   selectedKey: number;          
