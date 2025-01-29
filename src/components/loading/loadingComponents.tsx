@@ -4,8 +4,18 @@ import React from "react";
 //加载组件
 export default function Loading() {
   return (
-    <Box sx={{ display: "flex", justifyContent: "center", mt: "30vh" }}>
-      <CircularProgress color="inherit" />
-    </Box>
+    <Box
+    sx={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: 'column',
+      height: '100vh',
+      textAlign: 'center',
+    }}
+  >
+    <CircularProgress color="primary" size={50} />
+    <p>加载中，请稍等...</p>
+  </Box>
   );
 }

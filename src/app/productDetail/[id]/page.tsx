@@ -1,8 +1,11 @@
 "use client";
 
 import BottomComponent from "@/components/bottom/bottomComponent";
+import Loading from "@/components/loading/loadingComponents";
 import ProductInfo from "@/components/product/productInfo";
 import MainLayout from "@/layouts/mainLayout";
+import { CircularProgress } from "@mui/material";
+import { Box } from "@mui/system";
 import { useParams, useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 
@@ -78,9 +81,9 @@ export default function ProductDetail() {
 
   if (!isExist) {
     return (
-        <div>
-            正在查找商品
-        </div>
+      <div>
+        <Loading/>
+      </div>
     );
   }
 

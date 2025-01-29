@@ -1,12 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
-
-interface MenuItem {
-  id: number;
-  label: string;
-  icon: string;
-}
-
+import { menuItemsHomePage } from '@/types/enum/enum';
 
 interface NavbarProps {
   selectedKey: number;          
@@ -15,19 +9,10 @@ interface NavbarProps {
 
 const NavProductComponent: React.FC<NavbarProps> = ({ selectedKey, setSelectedKey }) => {
  const router = useRouter();
-  const menuItems: MenuItem[] = [
-    { id: 1, label: '猜你喜欢', icon: '/images/like.png' },
-    { id: 2, label: '运动户外', icon: '/images/sport.png' },
-    { id: 3, label: '馋嘴零食', icon: '/images/food.png' },
-    { id: 4, label: '潮电数码', icon: '/images/phone.png' },
-    { id: 5, label: '服饰时尚', icon: '/images/clothes.png' },
-    { id: 6, label: '家装建材', icon: '/images/chatou.png' },
-    { id: 7, label: '办公文具', icon: '/images/work.png' },
-  ];
 
   return (
     <div className="flex flex-row w-full h-[40px] justify-center items-center">
-      {menuItems.map((item) => (
+      {menuItemsHomePage.map((item) => (
         <div
           key={item.id}
           onClick={() => setSelectedKey(item.id)}

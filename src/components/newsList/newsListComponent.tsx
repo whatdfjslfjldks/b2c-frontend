@@ -3,12 +3,6 @@
 import { useState } from "react";
 import Image from "next/image";
 
-const menu = [
-  { id: 1, label: "全部" },
-  { id: 2, label: "购物心得" },
-  { id: 3, label: "消费文化" },
-  { id: 4, label: "品牌资讯" },
-];
 
 export default function NewsListComponent() {
   const [selectedMenu, setSelectedMenu] = useState<number | null>(1);

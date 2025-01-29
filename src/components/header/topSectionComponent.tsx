@@ -13,16 +13,9 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import DeleteIcon from "@mui/icons-material/Delete"; 
 import { useRouter } from "next/navigation";
+import { menuKeyTopSec } from "@/types/enum/enum";
 
 
-
-const menuKey: { [key: string]: number } = {
-  productClassify: 1,   // 产品分类
-  flashSale: 2,          // 限时秒杀
-  preSale: 3,            // 限时预售
-  newsList: 4,           // 新闻列表
-  aboutUs: 5,            // 关于我们
-};
 
 export default function TopSectionComponent() {
   const [open, setOpen] = useState(false);
@@ -58,7 +51,7 @@ export default function TopSectionComponent() {
 
   useEffect(() => {
     const val=window.location.pathname.split('/')[1];
-    setSelectedMenu(menuKey[val]);
+    setSelectedMenu(menuKeyTopSec[val]);
   }, []);
 
   return (

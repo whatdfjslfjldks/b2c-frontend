@@ -68,11 +68,15 @@ const userSlice = createSlice({
       }
       console.log("userInfo",state.userInfo)
     },
+    removeUserFromLocalStorage: (state) => {
+      state.userInfo = null;
+      localStorage.removeItem('userInfo');
+    },
   },
 });
 
 // 导出 actions
-export const { setUserInfo, setLoading, setError, loadUserFromLocalStorage } = userSlice.actions;
+export const { setUserInfo, setLoading, setError, loadUserFromLocalStorage,removeUserFromLocalStorage } = userSlice.actions;
 
 // 导出 reducer
 export default userSlice.reducer;

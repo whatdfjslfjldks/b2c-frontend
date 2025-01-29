@@ -41,7 +41,7 @@ export default function EmailLogin() {
       body:JSON.stringify({
         email:emailPrefix+selectedDomain,
       })
-    },undefined,false)
+    })
     .then((data)=>{
       if(data.code===200){
         setError("")
@@ -95,7 +95,7 @@ export default function EmailLogin() {
         email:emailPrefix+selectedDomain,
         verify_code:verifyCode
       })
-    },undefined,false)
+    })
     .then((data)=>{
       if(data.code===200){
         dispatch(setUserInfo(data.data))

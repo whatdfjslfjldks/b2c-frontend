@@ -1,16 +1,12 @@
 import { isTokenValid } from "@/api/token"
+import { APIResponse } from "@/types/dto/fetchApiDTO";
 
-interface APIResponse {
-  code: number;
-  msg: string;
-  data?: any; // 可选的返回数据字段
-}
-
+// 可选鉴权，默认不鉴权
 export function fetchAPI(
   path: string | URL,
   init?: RequestInit,
   timeout: number = 5000,
-  a: boolean = true
+  a: boolean = false
 ): Promise<APIResponse> {
   // 检查 NEXT_PUBLIC_API_URL 是否定义
   if (typeof process.env.NEXT_PUBLIC_API_URL !== "string") {

@@ -28,7 +28,7 @@ export default function UsernameLogin() {
             username: username, 
             password:password 
           }),
-        },undefined,false)
+        })
         .then((data) => {
           // console.log("dsfadsf: ",data)
           if(data.code === 200){

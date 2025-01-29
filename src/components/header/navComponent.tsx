@@ -8,6 +8,8 @@ import { RootState } from "@/work/redux/store";
 import { DownOutlined} from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Dropdown } from 'antd';
+import { useDispatch } from "react-redux";
+import {removeUserFromLocalStorage} from "@/work/redux/userInfoSlice"
 
 export default function NavComponent() {
   const [region, setRegion] = useState("中国大陆");
@@ -16,6 +18,7 @@ export default function NavComponent() {
   const [anchorEl2, setAnchorEl2] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl2);
   const router = useRouter();
+  const dispatch = useDispatch();
   const { userInfo } = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
@@ -25,6 +28,10 @@ export default function NavComponent() {
   }, []);
   function handleLogin() {
     router.push("/login");
+  }
+  function handleLogout() {
+    setIsLogin(false);
+    dispatch(removeUserFromLocalStorage());
   }
 
   function handleSelect(option: number) {
@@ -143,7 +150,7 @@ export default function NavComponent() {
                         账号管理
                       </div>
                       <div className="border-r-[1.5px] ml-[10px] border-[gray] h-[12px]"></div>
-                      <div className="text-[12px] text-[#1f1f1f] ml-[10px] hover:text-[#ff5000] cursor-pointer">
+                      <div onClick={handleLogout} className="text-[12px] text-[#1f1f1f] ml-[10px] hover:text-[#ff5000] cursor-pointer">
                         退出
                       </div>
                     </div>
