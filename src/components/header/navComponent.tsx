@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
-import {Popover } from "@mui/material";
+import {Popover, Popper } from "@mui/material";
 import { useSelector } from "react-redux";
 import { RootState } from "@/work/redux/store";
 import { DownOutlined} from '@ant-design/icons';
@@ -10,6 +10,7 @@ import type { MenuProps } from 'antd';
 import { Dropdown } from 'antd';
 import { useDispatch } from "react-redux";
 import {removeUserFromLocalStorage} from "@/work/redux/userInfoSlice"
+import {message} from 'antd'
 
 export default function NavComponent() {
   const [region, setRegion] = useState("中国大陆");
@@ -20,6 +21,7 @@ export default function NavComponent() {
   const router = useRouter();
   const dispatch = useDispatch();
   const { userInfo } = useSelector((state: RootState) => state.user);
+  const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
     if (userInfo) {
@@ -31,23 +33,19 @@ export default function NavComponent() {
   }
   function handleLogout() {
     setIsLogin(false);
+    messageApi.info("退出登录成功")
     dispatch(removeUserFromLocalStorage());
   }
 
-  function handleSelect(option: number) {
-    // 根据选择的项做一些处理
-  }
-
-  function handleClose() {
-    setAnchorEl(null);
-  }
-
-  function handleHelpCenterClick(e: any) {
-    setAnchorEl(e.currentTarget);
-  }
-
   function handleInfoClick(e: React.MouseEvent<HTMLDivElement>) {
+    setAnchorEl2(anchorEl2 ? null : e.currentTarget);
+  }
+
+  function handleEnter(e: React.MouseEvent<HTMLDivElement>) {
     setAnchorEl2(e.currentTarget);
+  }
+  function handleLeave(e: React.MouseEvent<HTMLDivElement>) {
+    setAnchorEl2(null);
   }
 
   function handleInfoClose() {
@@ -79,6 +77,7 @@ export default function NavComponent() {
 
   return (
     <div className="flex bg-[] text-[14px] flex-row w-full items-center h-[35px] pl-[48px] pr-[48px] border-b-[1px] border-[#ddd]">
+      {contextHolder}
       <div className="mr-[12px] text-[#1f1f1f] text-[14px] cursor-pointer hover:text-[#ff5000] ">
         <select defaultValue={region} className="cursor-pointer">
           <option value="CN">{region}</option>
@@ -88,50 +87,31 @@ export default function NavComponent() {
       <div className="flex flex-row justify-center w-[150px] mr-[12px] text-[#1f1f1f]">
         {isLogin ? (
           <>
+          <div 
+          onMouseEnter={handleEnter}
+          onMouseLeave={handleLeave}
+          >
             <div
-              onClick={handleInfoClick}
+              // onClick={handleInfoClick}
               className="flex flex-row items-center cursor-pointer hover:text-[#ff5000]"
             >
-              {/* {userInfo?.avatarUrl 
-            ?(
-            <img
-            src="/images/1.JPG"
-            //  src={userInfo?.avatarUrl}
-              alt="avatar"
-               className="w-[30px] h-[30px]
-                rounded-full mr-[5px]" />
-            ):(
-              <img
-               src="/images/1.JPG" // default image
-                alt="avatar"
-                 className="w-[30px] h-[30px]
-                  rounded-full mr-[5px]" />
-            )
-                } */}
               <span className="w-[115px] text-[14px] overflow-hidden whitespace-nowrap text-ellipsis">
                 {userInfo?.username}
               </span>
             </div>
 
-            <Popover
+            <Popper
               open={open}
               anchorEl={anchorEl2}
-              onClose={handleInfoClose}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "left",
-              }}
-              slotProps={{
-                paper: {
-                  style: {
-                    width: "180px",
-                    height: "125px",
-                    borderRadius: "15px",
-                  },
-                },
+              placement="bottom-start"
+              sx={{
+                backgroundColor: 'white',
+                width: '200px',
+                zIndex: 10,
+                marginTop: "5px",
               }}
             >
-              <div>
+              <div className="bg-white border p-2 border-[#e3e3e3] rounded-md">
                 <div className="flex flex-row ">
                   <div className="mt-[15px] ml-[15px] cursor-pointer">
                     <img
@@ -163,7 +143,8 @@ export default function NavComponent() {
                   </div>
                 </div>
               </div>
-            </Popover>
+            </Popper>
+            </div>
           </>
         ) : (
           <>

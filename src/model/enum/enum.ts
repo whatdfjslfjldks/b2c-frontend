@@ -42,3 +42,13 @@ export const menuNewsList = [
     { id: 3, label: "消费文化" },
     { id: 4, label: "品牌资讯" },
   ];
+// 限时秒杀时间段场次
+export const secKillTime = [
+  {id: 1, label: "00:00"},
+  {id: 2, label: "08:00"},
+  {id: 3, label: "10:00"},
+  {id: 4, label: "12:00"},
+  {id: 5, label: "14:00"},
+  {id: 6, label: "18:00"},
+  {id: 7, label: "20:00"},
+]

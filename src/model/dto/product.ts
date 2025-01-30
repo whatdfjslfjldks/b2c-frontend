@@ -1,6 +1,6 @@
 import { type } from "os";
 
-// 返回的商品数据
+// 返回的普通商品列表数据
 export interface productsList{
     productList: productsInfo[];
     totalItems: number;
@@ -34,3 +34,24 @@ type pType = {
     product_type_id:number;
     product_type_name:string;
 }
+
+// 返回的限时秒杀商品列表数据
+export interface secKillList{
+    productList:secKillInfo[];
+    totalItems:number;
+    currentPage:number;
+    pageSize:number;
+    Time:number;
+}
+type secKillInfo = {
+    sec_id: number; 
+    sec_name: string;
+    sec_cover: string; 
+    sec_price: number; 
+    sec_original_price: number; 
+    sec_stock: number; 
+    sec_sold: number; 
+    sec_start_time: string; 
+    sec_end_time: string; 
+  };
+  

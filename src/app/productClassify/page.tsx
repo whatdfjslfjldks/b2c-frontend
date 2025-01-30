@@ -15,21 +15,6 @@ import { menuItemsClassify } from "@/model/enum/enum";
 import { productsList } from "@/model/dto/product";
 
 
- // 模拟加载更多的商品数据
-  const loadMoreProducts = async (url:string)=> {
-    // console.log("查询的url： ",url)
-    return fetchAPI(url).then((data: APIResponse)=>{
-      if(data.code===200){
-        return data.data as productsList;
-      }else{
-        if (process.env.NODE_ENV === "development"){
-        console.log('error:', data);
-        }
-        return null;
-      }
-    })
-  };
-
 
 export default function ProductClassify() {
 
@@ -45,6 +30,20 @@ export default function ProductClassify() {
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [productList, setProductList]=useState<productsInfo[]>([])
   // const [totalPage,setTotalPage]=useState<number>(1)
+
+  const loadMoreProducts = async (url:string)=> {
+    // console.log("查询的url： ",url)
+    return fetchAPI(url).then((data: APIResponse)=>{
+      if(data.code===200){
+        return data.data as productsList;
+      }else{
+        if (process.env.NODE_ENV === "development"){
+        console.log('error:', data);
+        }
+        return null;
+      }
+    })
+  };
 
   function handleNextPage(){
     // console.log("handleNextPage")

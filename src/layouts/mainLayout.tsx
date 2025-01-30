@@ -8,7 +8,6 @@ import TopSectionComponent from "@/components/header/topSectionComponent"
 export default function MainLayout(props: { children: React.ReactNode }) {
     return (
         <div> 
-
 <FloatMenuComponent />
       <NavComponent />
       {/* 内容区域 */}

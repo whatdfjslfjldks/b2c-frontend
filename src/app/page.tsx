@@ -8,6 +8,8 @@ const FeaturedRecComponent = dynamic(() => import('@/components/homePage/feature
 const ExLaunchComponent = dynamic(() => import('@/components/homePage/exlaunchComponent'), { ssr: false });
 const ProductList = dynamic(() => import('@/components/homePage/productList'), { ssr: false });
 
+
+// TODO swr缓存首屏资源，因为补偿变化，缓存时间可以设置久一点
 export default function Home() {
   return (
     <div>

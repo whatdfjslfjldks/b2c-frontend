@@ -8,14 +8,83 @@ import MainLayout from "@/layouts/mainLayout";
 import { pImg, productDetail } from "@/model/vo/productInfoVO";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
+import { type } from "os";
 import { useState, useRef, useEffect } from "react";
+import useSWR from 'swr'
 
+
+
+type ProductDetailResponse = {
+  code:number;
+  isExist: boolean;
+  result?:productDetail;
+};
+type pDetail={
+  code:number;
+  productDetail?:productDetail;
+}
+
+
+const getProductDetail = async (id:number): Promise<pDetail> => {
+  try {
+    const data = await fetchAPI(`/product-server/getProductDetailById?productId=${id}`);
+    if (data.code === 200) {
+      // 返回商品详情
+      return {
+        code:data.code,
+        productDetail:data.data as productDetail
+      }
+    } else {
+      if (process.env.NODE_ENV === "development") {
+        console.log('error:', data);
+      }
+      return {
+        code:data.code,
+      }
+    }
+  } catch (error) {
+    if (process.env.NODE_ENV === "development") {
+      console.log('error:', error);
+    }
+    return {
+      code:408
+    };
+  }
+};
+
+const fetchProductDetail = async (id:string): Promise<ProductDetailResponse | null> => {
+  // console.log("id:",id)
+   const decodedId = decodeURIComponent(id as string);  // 解码商品 ID
+    const pid = parseInt(decodedId);  // 转换为数字类型
+    // console.log("pid:",pid)
+    if (Number.isNaN(pid) || pid === null) {
+      return {
+        code:404,
+        isExist: false,
+      }
+    } else {
+      // 获取商品详情
+      const result = await getProductDetail(pid);
+      if (result.code===200) {
+        return {
+          code:result.code,
+          isExist: true,
+          result: result.productDetail,
+        }
+      } else {
+        return {
+          code:result.code,
+          isExist: false,
+        }
+      }
+    }
+};
 export default function ProductDetail() {
   const router = useRouter();
   const id = useParams().id;
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isExist, setIsExist] = useState<boolean>(false);
   const [productId, setProductId] = useState<number | null>(null);
+  const [isExist, setIsExist]=useState<boolean>(false)
   const [productInfo, setProductInfo]=useState<productDetail|null>(null)
   const [selectImg,setSelectImg]=useState<pImg|null>(null)
   const [zoomPosition, setZoomPosition] = useState({
@@ -57,62 +126,33 @@ export default function ProductDetail() {
   };
 
 
-  // TODO 利用swr优化数据获取
-  const getProductDetail = async (id: number): Promise<productDetail | null> => {
-    try {
-      const data = await fetchAPI(`/product-server/getProductDetailById?productId=${id}`);
-      if (data.code === 200) {
-        // 返回商品详情
-        return data.data as productDetail;
-      } else {
-        if (process.env.NODE_ENV === "development") {
-          console.log('error:', data);
-        }
-        return null;
-      }
-    } catch (error) {
-      if (process.env.NODE_ENV === "development") {
-        console.log('error:', error);
-      }
-      return null;
-    }
-  };
+  const {data,error,isLoading}=useSWR(id,
+  fetchProductDetail,
+  {
+    dedupingInterval: 30*1000,  // 30秒内不会重复请求相同url
+    staleTime: 60*1000,  // 数据缓存时间1分钟
+//     revalidateOnMount:false,
+// revalidateIfStale: true,  
+  }
+  )
 
-  //TODO react钩子只能以相同的顺序调用，中间不能用类似下面if渲染分割
-  //   判断商品是否存在
   useEffect(() => {
-    const fetchProductDetail = async () => {
-      try {
-        const decodedId = decodeURIComponent(id as string);  // 解码商品 ID
-        const pid = parseInt(decodedId);  // 转换为数字类型
-
-        setProductId(pid);
-
-        if (Number.isNaN(pid) || pid === null) {
-          setIsExist(false); // 如果 ID 无效，则设置商品不存在
-          router.push("/error/noitem"); // 跳转到错误页面
-        } else {
-          // 获取商品详情
-          const result = await getProductDetail(pid);
-
-          if (result !== null) {
-            setProductInfo(result); // 设置商品详情
-            // 默认大图为第一张
-            setSelectImg(result.product_img[0])
-            setIsExist(true); // 商品存在
-          } else {
-            setIsExist(false); // 商品不存在
-            router.push("/error/noitem"); // 跳转到错误页面
-          }
-        }
-      } catch (error) {
-        // console.error("解码商品 ID 时出错:", error);
-        router.push("/error/noitem"); // 错误跳转
+    console.log("data:", data);
+    if(data){
+      if(data.code===200){
+        setIsExist(true)
+        setProductInfo(data.result as productDetail)
+        setSelectImg(data.result?.product_img[0] as pImg)
+      }else if (data.code===404){
+        setIsExist(false)
+        router.push("/error/noitem");
+      }else {
+        setIsExist(false)
+        router.push("/error/nonetwork")
       }
-    };
+    }
+  }, [data]);
 
-    fetchProductDetail(); // 调用异步方法
-  }, [id, router]); 
 
   function handleImgClick(item: pImg){
     // console.log(item)
@@ -141,7 +181,7 @@ export default function ProductDetail() {
                     <div
                     onClick={()=>handleImgClick(item)}
                       key={index}
-                      className="border rounded-md border-[#e3e3e3] overflow-hidden w-[90px] h-[90px] mt-[5px] cursor-pointer"
+                      className={`${selectImg?.img_id===item.img_id ? 'border border-[#ff5000] rounded-md':""}border rounded-md border-[#e3e3e3] overflow-hidden w-[90px] h-[90px] mt-[5px] cursor-pointer hover:border hover:border-[#ff5000] hover:rounded-md`}
                     >
                  <Image
                     src={`http://localhost:9000/${item.img_url}`}
@@ -188,7 +228,8 @@ export default function ProductDetail() {
             <div className="flex flex-col w-[calc(55%-20px)] h-full ml-[20px] mt-[5px] p-2">
               {/* 商品名称 */}
               <div className="flex flex-row w-full line-clamp-2 text-[#11192d] font-semibold text-[24px] font-custom">
-                卡姿兰大眼睛超级无敌带耳机的土拨鼠
+             {productInfo?.product_name}
+                {/* 卡姿兰大眼睛超级无敌带耳机的土拨鼠 */}
               </div>
 
               {/* 价格 */}
@@ -197,10 +238,10 @@ export default function ProductDetail() {
                   &yen;
                 </div>
                 <div className="text-[28px] ml-[2px] text-[#ff5000] font-semibold">
-                  30.00
+                  {productInfo?.product_price}
                 </div>
                 <div className="text-[#7a7a7a] ml-[10px] text-[14px] font-normal">
-                  已售999+
+                 已有{productInfo?.product_sold}人购买
                 </div>
               </div>
 
@@ -211,11 +252,17 @@ export default function ProductDetail() {
                 </div>
                 {/* 具体类别 */}
                 <div className="flex flex-col ml-[10px] h-[300px] w-[500px] overflow-y-scroll scrollbar-hide ">
-                  <div className="flex border w-[450px] mb-[10px] border-[#dadde0] bg-[#fff] text-[20px] rounded-sm font-custom p-2 hover:text-[#ff5000] hover:border hover:border-[#ff5000] cursor-pointer">
-                    <div className="text-[16px] font-custom text-[#11192d] line-clamp-1">
-                      是到付哈的说法都是开发哈德数据库是到付哈的说法都是开发哈德数据库是到付哈的说法都是开发哈德数据库
-                    </div>
-                  </div>
+                 
+                 {productInfo?.product_type.map((item, index)=>(
+            
+            <div key={item.type_id} className="flex border w-[450px] mb-[10px] border-[#dadde0] bg-[#fff] text-[20px] rounded-sm font-custom p-2 hover:text-[#ff5000] hover:border hover:border-[#ff5000] cursor-pointer">
+            <div className="text-[16px] font-custom text-[#11192d] line-clamp-1">
+              {item.type_name}
+            </div>
+          </div>
+    
+         
+                 ))}
                 </div>
               </div>
 

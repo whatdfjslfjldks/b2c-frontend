@@ -9,6 +9,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import Image from "next/image";
 import BottomComponent from "@/components/bottom/bottomComponent";
 
+// TODO time=1 不筛选
 export default function FlashSale() {
   const router = useRouter();
 
@@ -51,7 +52,7 @@ export default function FlashSale() {
     }, 1000);
   };
 
-  const deadline = "2025-01-27T23:59:00+08:00"; // 设置截止时间
+  const deadline = "2025-01-31T02:00:00+08:00"; // 设置截止时间
 
   const [timeLeft, setTimeLeft] = useState(0);
 
