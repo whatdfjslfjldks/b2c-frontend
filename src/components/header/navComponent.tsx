@@ -1,20 +1,21 @@
+'use client'
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import {Popover, Popper } from "@mui/material";
 import { useSelector } from "react-redux";
-import { RootState } from "@/work/redux/store";
+import { RootState } from "../../middleware/redux/store";
 import { DownOutlined} from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Dropdown } from 'antd';
 import { useDispatch } from "react-redux";
-import {removeUserFromLocalStorage} from "@/work/redux/userInfoSlice"
+import {isLogin, removeUserFromLocalStorage} from "../../middleware/redux/userInfoSlice"
 import {message} from 'antd'
 
 export default function NavComponent() {
   const [region, setRegion] = useState("中国大陆");
-  const [isLogin, setIsLogin] = useState(false);
+  const [login,setLogin]=useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [anchorEl2, setAnchorEl2] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl2);
@@ -23,16 +24,22 @@ export default function NavComponent() {
   const { userInfo } = useSelector((state: RootState) => state.user);
   const [messageApi, contextHolder] = message.useMessage();
 
-  useEffect(() => {
-    if (userInfo) {
-      setIsLogin(true);
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (typeof window===undefined){
+  //     return
+  //   }
+  //   // console.log("111111111")
+  //   if(isLogin()){
+  //     setLogin(true);
+  //   }else{
+  //     setLogin(false);
+  //   }
+  // }, []);
   function handleLogin() {
     router.push("/login");
   }
   function handleLogout() {
-    setIsLogin(false);
+    // setIsLogin(false);
     messageApi.info("退出登录成功")
     dispatch(removeUserFromLocalStorage());
   }
@@ -85,7 +92,7 @@ export default function NavComponent() {
       </div>
 
       <div className="flex flex-row justify-center w-[150px] mr-[12px] text-[#1f1f1f]">
-        {isLogin ? (
+        {isLogin()? (
           <>
           <div 
           onMouseEnter={handleEnter}

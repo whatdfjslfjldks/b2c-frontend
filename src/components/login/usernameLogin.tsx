@@ -5,7 +5,7 @@ import { TextField, Button, Grid, Typography, Box, Container, Paper, InputAdornm
 import { AccountCircle, Lock } from '@mui/icons-material';
 import { fetchAPI } from '@/api/fetchApi';
 import { useDispatch } from 'react-redux';
-import { setUserInfo } from '../../work/redux/userInfoSlice';
+import { setUserInfo } from '../../middleware/redux/userInfoSlice';
 import { useRouter } from 'next/navigation'
 
 export default function UsernameLogin() {

@@ -7,7 +7,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { fetchAPI } from '@/api/fetchApi';
 import { useRouter } from 'next/navigation';
 import { useDispatch } from 'react-redux';
-import { setUserInfo } from '../../work/redux/userInfoSlice';
+import { setUserInfo } from '../../middleware/redux/userInfoSlice';
 
 export default function EmailLogin() {
   const [error, setError] = useState<string | null>(null);

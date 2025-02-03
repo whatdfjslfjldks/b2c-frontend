@@ -1,5 +1,5 @@
 // tokenUtils.ts
-import { setUserInfo } from '@/work/redux/userInfoSlice'; // 你的 Redux action
+import { setUserInfo } from '../middleware/redux/userInfoSlice'; // 你的 Redux action
 
 const api_prefix = 'http://localhost:8080/api/user-server';
 

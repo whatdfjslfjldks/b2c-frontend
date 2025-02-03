@@ -5,88 +5,94 @@ import BottomComponent from "@/components/bottom/bottomComponent";
 import Loading from "@/components/loading/loadingComponents";
 import ProductInfo from "@/components/product/productInfo";
 import MainLayout from "@/layouts/mainLayout";
-import { pImg, productDetail } from "@/model/vo/productInfoVO";
+import { PImg, productsInfo } from "@/model/vo/productInfoVO";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { type } from "os";
 import { useState, useRef, useEffect } from "react";
-import useSWR from 'swr'
-
-
+import useSWR from "swr";
 
 type ProductDetailResponse = {
-  code:number;
+  code: number;
   isExist: boolean;
-  result?:productDetail;
+  result?: productsInfo;
 };
-type pDetail={
-  code:number;
-  productDetail?:productDetail;
-}
+type pDetail = {
+  code: number;
+  product?: productsInfo;
+};
 
+type selectImg = {
+  index: number;
+  img_url: string;
+};
 
-const getProductDetail = async (id:number): Promise<pDetail> => {
+const getProductDetail = async (id: number): Promise<pDetail> => {
   try {
-    const data = await fetchAPI(`/product-server/getProductDetailById?productId=${id}`);
+    const data = await fetchAPI(
+      `/product-server/getProductById?productId=${id}`
+    );
     if (data.code === 200) {
-      // 返回商品详情
       return {
-        code:data.code,
-        productDetail:data.data as productDetail
-      }
+        code: data.code,
+        product: data.data.product,
+      };
     } else {
       if (process.env.NODE_ENV === "development") {
-        console.log('error:', data);
+        console.log("error:", data);
       }
       return {
-        code:data.code,
-      }
+        code: data.code,
+      };
     }
   } catch (error) {
     if (process.env.NODE_ENV === "development") {
-      console.log('error:', error);
+      console.log("error:", error);
     }
     return {
-      code:408
+      code: 408,
     };
   }
 };
 
-const fetchProductDetail = async (id:string): Promise<ProductDetailResponse | null> => {
+const fetchProductDetail = async (
+  id: string
+): Promise<ProductDetailResponse | null> => {
   // console.log("id:",id)
-   const decodedId = decodeURIComponent(id as string);  // 解码商品 ID
-    const pid = parseInt(decodedId);  // 转换为数字类型
-    // console.log("pid:",pid)
-    if (Number.isNaN(pid) || pid === null) {
+  const decodedId = decodeURIComponent(id as string); // 解码商品 ID
+  const pid = parseInt(decodedId); // 转换为数字类型
+  // console.log("pid:",pid)
+  if (Number.isNaN(pid) || pid === null) {
+    return {
+      code: 404,
+      isExist: false,
+    };
+  } else {
+    // 获取商品详情
+    const result = await getProductDetail(pid);
+    if (result.code === 200) {
+      // console.log("11111111111: ",result)
       return {
-        code:404,
-        isExist: false,
-      }
+        code: result.code,
+        isExist: true,
+        result: result.product,
+      };
     } else {
-      // 获取商品详情
-      const result = await getProductDetail(pid);
-      if (result.code===200) {
-        return {
-          code:result.code,
-          isExist: true,
-          result: result.productDetail,
-        }
-      } else {
-        return {
-          code:result.code,
-          isExist: false,
-        }
-      }
+      return {
+        code: result.code,
+        isExist: false,
+      };
     }
+  }
 };
 export default function ProductDetail() {
   const router = useRouter();
   const id = useParams().id;
   const containerRef = useRef<HTMLDivElement>(null);
   const [productId, setProductId] = useState<number | null>(null);
-  const [isExist, setIsExist]=useState<boolean>(false)
-  const [productInfo, setProductInfo]=useState<productDetail|null>(null)
-  const [selectImg,setSelectImg]=useState<pImg|null>(null)
+  const [isExist, setIsExist] = useState<boolean>(false);
+  const [productInfo, setProductInfo] = useState<productsInfo | null>(null);
+  const [selectImg, setSelectImg] = useState<selectImg | null>(null);
   const [zoomPosition, setZoomPosition] = useState({
     x: 0,
     y: 0,
@@ -125,40 +131,40 @@ export default function ProductDetail() {
     setZoomPosition({ ...zoomPosition, showZoom: false });
   };
 
-
-  const {data,error,isLoading}=useSWR(id,
-  fetchProductDetail,
-  {
-    dedupingInterval: 30*1000,  // 30秒内不会重复请求相同url
-    staleTime: 60*1000,  // 数据缓存时间1分钟
-//     revalidateOnMount:false,
-// revalidateIfStale: true,  
-  }
-  )
+  const { data, error, isLoading } = useSWR(id, fetchProductDetail, {
+    // dedupingInterval: 5 * 1000, 
+    // staleTime: 60 * 1000, 
+  });
 
   useEffect(() => {
-    console.log("data:", data);
-    if(data){
-      if(data.code===200){
-        setIsExist(true)
-        setProductInfo(data.result as productDetail)
-        setSelectImg(data.result?.product_img[0] as pImg)
-      }else if (data.code===404){
-        setIsExist(false)
+    if (data) {
+      console.log("data:", data);
+      if (data.code === 200 && data.result) {
+        setIsExist(true);
+        setProductInfo(data.result as productsInfo);
+        if (data.result.pImg && data.result.pImg.length > 0) {
+          setSelectImg({
+            index: 0,
+            img_url: data.result.pImg[0].img_url,
+          });
+        }
+      } else if (data.code === 404) {
+        setIsExist(false);
         router.push("/error/noitem");
-      }else {
-        setIsExist(false)
-        router.push("/error/nonetwork")
+      } else {
+        setIsExist(false);
+        router.push("/error/nonetwork");
       }
     }
   }, [data]);
 
-
-  function handleImgClick(item: pImg){
+  function handleImgClick(item: PImg, index: number) {
     // console.log(item)
-    setSelectImg(item)
+    setSelectImg({
+      index: index,
+      img_url: item.img_url,
+    });
   }
-
 
   if (!isExist) {
     return (
@@ -177,22 +183,32 @@ export default function ProductDetail() {
             <div className="flex flex-row w-[45%] h-full p-2 relative">
               {/* 图片列表 */}
               <div className="flex flex-col items-center w-[20%] p-1 h-full">
-                {productInfo?.product_img.map((item, index) => (
-                    <div
-                    onClick={()=>handleImgClick(item)}
-                      key={index}
-                      className={`${selectImg?.img_id===item.img_id ? 'border border-[#ff5000] rounded-md':""}border rounded-md border-[#e3e3e3] overflow-hidden w-[90px] h-[90px] mt-[5px] cursor-pointer hover:border hover:border-[#ff5000] hover:rounded-md`}
-                    >
-                 <Image
-                    src={`http://localhost:9000/${item.img_url}`}
-                    alt="product"
-                   width={90}
-                   height={90}
-                    objectFit="cover"
-                    className="rounded-lg"
-                  />
-                    </div>
-                  ))}
+                {productInfo?.pImg && productInfo.pImg.length > 0 ? (
+                  <div>
+                    {productInfo?.pImg.map((item, index) => (
+                      <div
+                        onClick={() => handleImgClick(item, index)}
+                        key={index}
+                        className={`${
+                          selectImg?.index === index
+                            ? "border border-[#ff5000] rounded-md"
+                            : ""
+                        }border rounded-md border-[#e3e3e3] overflow-hidden w-[90px] h-[90px] mt-[5px] cursor-pointer hover:border hover:border-[#ff5000] hover:rounded-md`}
+                      >
+                        <Image
+                          src={`http://localhost:9000/${item.img_url}`}
+                          alt="product"
+                          width={90}
+                          height={90}
+                          objectFit="cover"
+                          className="rounded-lg"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div>还没有上传图片介绍</div>
+                )}
               </div>
 
               {/* 图片大图 */}
@@ -228,7 +244,7 @@ export default function ProductDetail() {
             <div className="flex flex-col w-[calc(55%-20px)] h-full ml-[20px] mt-[5px] p-2">
               {/* 商品名称 */}
               <div className="flex flex-row w-full line-clamp-2 text-[#11192d] font-semibold text-[24px] font-custom">
-             {productInfo?.product_name}
+                {productInfo?.name}
                 {/* 卡姿兰大眼睛超级无敌带耳机的土拨鼠 */}
               </div>
 
@@ -238,12 +254,31 @@ export default function ProductDetail() {
                   &yen;
                 </div>
                 <div className="text-[28px] ml-[2px] text-[#ff5000] font-semibold">
-                  {productInfo?.product_price}
+                  {productInfo?.price}
                 </div>
                 <div className="text-[#7a7a7a] ml-[10px] text-[14px] font-normal">
-                 已有{productInfo?.product_sold}人购买
+                已有{productInfo?.sold ?`${productInfo?.sold}`:`0`}人购买
                 </div>
               </div>
+
+{productInfo?.kind_id===2 ? 
+              <div>
+                <div>
+                  开始时间： {productInfo?.start_time}
+                </div>
+                <div>
+                  持续时间： {productInfo?.duration}
+                </div>
+                <div>
+                  场次： {productInfo?.session_id}
+                </div>
+              </div>
+              :
+              <div>
+                
+              </div>
+
+}
 
               {/* 分类 */}
               <div className="flex flex-row w-full mt-[10px] ">
@@ -252,17 +287,22 @@ export default function ProductDetail() {
                 </div>
                 {/* 具体类别 */}
                 <div className="flex flex-col ml-[10px] h-[300px] w-[500px] overflow-y-scroll scrollbar-hide ">
-                 
-                 {productInfo?.product_type.map((item, index)=>(
-            
-            <div key={item.type_id} className="flex border w-[450px] mb-[10px] border-[#dadde0] bg-[#fff] text-[20px] rounded-sm font-custom p-2 hover:text-[#ff5000] hover:border hover:border-[#ff5000] cursor-pointer">
-            <div className="text-[16px] font-custom text-[#11192d] line-clamp-1">
-              {item.type_name}
-            </div>
-          </div>
-    
-         
-                 ))}
+                  {productInfo?.pType && productInfo.pType.length > 0 ? (
+                    <div>
+                      {productInfo?.pType.map((item, index) => (
+                        <div
+                          key={index}
+                          className="flex border w-[450px] mb-[10px] border-[#dadde0] bg-[#fff] text-[20px] rounded-sm font-custom p-2 hover:text-[#ff5000] hover:border hover:border-[#ff5000] cursor-pointer"
+                        >
+                          <div className="text-[16px] font-custom text-[#11192d] line-clamp-1">
+                            {item.type_name}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div>还没有上传商品分类</div>
+                  )}
                 </div>
               </div>
 

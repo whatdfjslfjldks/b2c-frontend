@@ -2,7 +2,7 @@
 
 import MainLayout from "@/layouts/mainLayout";
 import { useRouter } from "next/navigation";
-import { Breadcrumbs } from "@mui/material";
+import { Breadcrumbs, Button } from "@mui/material";
 import {useEffect, useState } from "react";
 import Image from "next/image";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -29,7 +29,6 @@ export default function ProductClassify() {
   const router = useRouter();
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [productList, setProductList]=useState<productsInfo[]>([])
-  // const [totalPage,setTotalPage]=useState<number>(1)
 
   const loadMoreProducts = async (url:string)=> {
     // console.log("查询的url： ",url)
@@ -66,6 +65,7 @@ export default function ProductClassify() {
 
    // TODO 因为data初始值会超发一次请求（第一次，data为undefined）
    useEffect(() => {
+    // console.log("SDFsdfs: ",data)
     // 排除掉 data 初始为 undefined 的情况
     if (data === undefined) return;
   
@@ -75,7 +75,7 @@ export default function ProductClassify() {
       setProductList([]);
       return;
     }
-  
+  // console.log("DSfdsfdsf:",data)
     const totalPages = Math.ceil(data.totalItems / state.pageSize); // 计算总页数
     const isLastPage = data.currentPage === totalPages; // 判断是否已经是最后一页
   
@@ -106,8 +106,11 @@ export default function ProductClassify() {
       setHasMore(shouldHaveMore);
     }
   }, [data]);
-  
-  
+
+// 处理产品点击事件，发送消息
+function handleProductClick(product:any) {
+  window.open(`/productDetail/${product.id}`,'_blank');
+}
 
 
 
@@ -226,29 +229,37 @@ export default function ProductClassify() {
         <div className="flex flex-wrap w-full ">
           {productList?.map((product, index) => (
             <div key={index} className="flex-none w-[20%] h-[300px] p-2">
-              <div onClick={()=>{
-                window.open(`/productDetail/${product.product_id}`, '_blank');
-              }} className="w-full h-full p-1 rounded-lg cursor-pointer border-[1px] border-transparent hover:border-[1px] hover:border-[#ff5050] box-border">
+              <div onClick={()=>handleProductClick(product)} className="w-full h-full p-1 rounded-lg cursor-pointer border-[1px] border-transparent hover:border-[1px] hover:border-[#ff5050] box-border">
                 <div className="w-full h-[180px] rounded-lg relative">
-                  <Image
-                    src={`http://localhost:9000/${product.product_cover}`}
+                {product.pImg && product.pImg.length > 0 && product.pImg[0]?.img_url ? (
+                <Image
+                    src={`http://localhost:9000/${product.pImg[0]?.img_url}`}
                     alt="product"
                     layout="fill"
                     objectFit="cover"
                     className="rounded-lg"
-                  />
+                />
+            ) : (
+                <Image
+                    src="/images/test.jpg" 
+                    alt="Default Product Image"
+                    layout="fill"
+                    objectFit="cover"
+                    className="rounded-lg"
+                />
+            )}
                 </div>
                 <div className="mt-[5px] text-[16px] font-medium text-[#282828] font-custom line-clamp-1">
                   {/* 帕尔玛之水（ACQUA DI PARMA）车载香薰固体香水之水加州桂 无花果
                   LUCE DI COLONIA克罗尼亚(香薰芯) */}
-                  {product.product_name}
+                  {product.name}
                 </div>
                 <div className="mt-[2px] text-[#ff5000] font-custom text-[14px]">
                   包邮
                 </div>
                 <div className="flex flex-row items-center">
                   <div className="text-[20px] font-custom2 text-[#ff5000] font-bold">
-                    &yen;{product.product_price}
+                    &yen;{product.price}
                   </div>
                   <div className="ml-[8px] mt-[5px] text-[14px] text-[#7a7a7a] font-custom2">
                     999+人购买

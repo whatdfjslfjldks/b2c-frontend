@@ -19,13 +19,19 @@ interface UserState {
 }
 
 // 从 localStorage 获取用户信息，确保格式符合 User 接口
-const getUserFromLocalStorage = (): User | null => {
+export const getUserFromLocalStorage = (): User | null => {
   if (typeof window !== 'undefined') {
     // 只有在浏览器环境中才执行
+    // console.log("here from redux")
     const user = localStorage.getItem('userInfo');
     return user ? JSON.parse(user) : null;
   }
   return null; // 在服务器端返回 null
+};
+
+export const isLogin = (): boolean => {
+  const user = getUserFromLocalStorage();
+  return !!user;
 };
 
 // 初始状态，尝试从 localStorage 加载数据

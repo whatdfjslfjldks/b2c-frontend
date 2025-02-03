@@ -8,54 +8,84 @@ import moment from "moment-timezone";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Image from "next/image";
 import BottomComponent from "@/components/bottom/bottomComponent";
+import useSWR from "swr";
+import { fetchAPI } from "@/api/fetchApi";
+import { APIResponse } from "@/model/dto/fetchApiDTO";
+import { productsInfo } from "@/model/vo/productInfoVO";
+import { productsList } from "@/model/dto/product";
 
-// TODO time=1 不筛选
+
+
 export default function FlashSale() {
+  const [state,setState]=useState({
+    currentPage:1,
+    pageSize:8,
+    sessionId:1
+  });
+  const [productList, setProductList] = useState<productsInfo[]>([]);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const deadline = "2025-01-31T23:59:00+08:00";
+  const [timeLeft, setTimeLeft] = useState(0);
   const router = useRouter();
 
-  const [productList, setProductList] = useState<string[]>([
-    "商品 1",
-    "商品 2",
-    "商品 3",
-    "商品 4",
-    "商品 5",
-    "商品 6",
-    "商品 7",
-    "商品 8",
-    "商品 9",
-    "商品 10",
-  ]);
-  const [hasMore, setHasMore] = useState<boolean>(true);
-
-  // 模拟加载更多的商品数据
-  const loadMoreProducts = () => {
-    // 模拟网络请求，延时加载更多商品
-    setTimeout(() => {
-      setProductList((prev) => [
-        ...prev,
-        "商品 11",
-        "商品 12",
-        "商品 13",
-        "商品 14",
-        "商品 15",
-        "商品 16",
-        "商品 17",
-        "商品 18",
-        "商品 19",
-        "商品 20",
-      ]);
-
-      // 如果商品数超过一定数量，停止加载
-      if (productList.length >= 30) {
-        setHasMore(false);
+  const loadMoreProducts=async(url:string)=>{
+   return  fetchAPI(url).then((data: APIResponse)=>{
+            if(data.code===200){
+        return data.data as productsList;
+      }else{
+        if (process.env.NODE_ENV === "development"){
+        console.log('error:', data);
+        }
+        return null;
       }
-    }, 1000);
-  };
+    })
+  }
 
-  const deadline = "2025-01-31T02:00:00+08:00"; // 设置截止时间
 
-  const [timeLeft, setTimeLeft] = useState(0);
+  const { data, error, isLoading }=useSWR(
+    `/product-server/getSecKillList?currentPage=${state.currentPage}&pageSize=${state.pageSize}&sessionId=${state.sessionId}`,
+    loadMoreProducts,
+    {
+      dedupingInterval: 10*5000,  
+staleTime: 1*60*1000,  
+    }
+  )
 
+  useEffect(()=>{
+    console.log("data: ",data)
+    if (data === undefined) return;
+  
+    if (data === null) {
+      setHasMore(false);
+      setProductList([]);
+      return;
+    }
+
+  
+    const totalPages = Math.ceil(data.totalItems / state.pageSize); // 计算总页数
+    const isLastPage = data.currentPage === totalPages; // 判断是否已经是最后一页
+  
+    // 设置 hasMore 标志
+    const shouldHaveMore = !isLastPage;
+  
+    // 如果数据为空，清空商品列表并设置没有更多商品
+    if (data.productList === null || data.productList.length === 0) {
+      setHasMore(false);
+      setProductList([]);
+      return;
+    }
+        setHasMore(shouldHaveMore);
+        setProductList((prev) => [...prev, ...data.productList]);
+  },[data])
+
+  
+  function handleNextPage(){
+    // console.log("handleNextPage")
+      setState({
+        ...state,
+        currentPage:state.currentPage+1,
+      })
+  }
   useEffect(() => {
     const deadlineTime = moment(deadline).tz("Asia/Shanghai").valueOf();
 
@@ -93,6 +123,10 @@ export default function FlashSale() {
   };
 
   const { hours, minutes, seconds } = formatTime(timeLeft);
+
+  function handleProductClick(product:any){
+    window.open( `/productDetail/${product.id}`,'_blank')
+  }
 
   return (
     <div>
@@ -162,7 +196,7 @@ export default function FlashSale() {
           <div>
             <InfiniteScroll
               dataLength={productList.length}
-              next={loadMoreProducts}
+              next={handleNextPage}
               hasMore={hasMore}
               loader={<div className="text-center py-4">加载中...</div>}
               endMessage={
@@ -170,45 +204,67 @@ export default function FlashSale() {
               }
             >
               <div className="flex flex-wrap w-full ">
-                {productList.map((product, index) => (
-                  <div key={index} className="flex-none w-[25%] h-[400px] p-2">
+                {productList?.map((product, index) => (
+                  <div onClick={()=>handleProductClick(product)} key={index} className="flex-none w-[25%] h-[390px] p-2">
                     <div className="w-full h-full p-1 rounded-lg cursor-pointer hover:shadow-lg box-border">
                       <div className="w-full h-[240px] rounded-lg relative">
-                        <Image
+                        {/* <Image
                           src="/images/test.jpg"
                           alt="product"
                           layout="fill"
                           objectFit="cover"
                           className="rounded-lg"
-                        />
+                        /> */}
+                {product.pImg && product.pImg.length > 0 && product.pImg[0]?.img_url ? (
+                <Image
+                    src={`http://localhost:9000/${product.pImg[0]?.img_url}`}
+                    alt="product"
+                    layout="fill"
+                    objectFit="cover"
+                    className="rounded-lg"
+                />
+            ) : (
+                <Image
+                    src="/images/test.jpg" 
+                    alt="Default Product Image"
+                    layout="fill"
+                    objectFit="cover"
+                    className="rounded-lg"
+                />
+            )}
                       </div>
                       <div className="mt-[5px] text-[16px] font-medium text-[#282828] font-custom line-clamp-2">
-                        帕尔玛之水（ACQUA DI PARMA）车载香薰固体香水之水加州桂
-                        无花果 LUCE DI COLONIA克罗尼亚(香薰芯)
+                        {product.name}
+                        {/* 帕尔玛之水（ACQUA DI PARMA）车载香薰固体香水之水加州桂
+                        无花果 LUCE DI COLONIA克罗尼亚(香薰芯) */}
                       </div>
 
                       <div className="flex flex-row mt-[10px]">
                         <div className="flex flex-col">
                           <div className="flex flex-row items-center">
                             <div className="text-[22px] font-custom2 text-[#ff5000] font-bold">
-                              &yen;179.99
+                              &yen;{product?.price ? `${product?.price}`:0 }
                             </div>
                             <div className="ml-[8px] mt-[5px] text-[12px] text-[#969696] line-through font-custom2">
-                              &yen;280.00
+                              &yen;{product?.original_price? `${product?.original_price}`:0}
                             </div>
                           </div>
 
                           {/* 购买人数进度条 */}
                           <div className="flex flex-row mt-[2px] items-center">
-                            <div className="text-[12px] text-[#969696]">
-                              已抢28%
-                            </div>
-                            {/* 进度条 */}
-                            <div className="flex flex-row w-[80px] ml-[12px] h-[8px] bg-[#e2e2e2] rounded">
-                              {/* 已抢购进度条 */}
-                              <div className="w-[20px] h-[8px] bg-[#e93323] rounded"></div>
-                            </div>
-                          </div>
+  <div className="text-[12px] text-[#969696]">
+    已抢{product?.sold && product.stock ?(((product.sold / product.stock) * 100).toFixed(0)):0  }%
+  </div>
+  {/* 进度条 */}
+  <div className="flex flex-row w-[80px] ml-[12px] h-[8px] bg-[#e2e2e2] rounded">
+    {/* 已抢购进度条，动态计算宽度 */}
+    <div
+      className={`h-[8px] bg-[#e93323] rounded`}
+      style={{ width: `${(product.sold/product.stock)*80}px` }}
+    ></div>
+  </div>
+</div>
+
                         </div>
 
                         {/* 抢购中 */}

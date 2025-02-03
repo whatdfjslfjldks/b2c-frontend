@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { Provider } from 'react-redux';
-import { store } from '../work/redux/store';
-import { DispatchProvider } from "@/auth/auth";
+import { store } from '../middleware/redux/store';
+import { TokenChecker } from "@/auth/auth";
 import "../styles/globals.css"
 
 
@@ -38,9 +38,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <Provider store={store}>
           {/* <main> */}
-          <DispatchProvider>
+          <TokenChecker>
             {children}
-            </DispatchProvider>
+            </TokenChecker>
             {/* </main> */}
         </Provider>
       </body>

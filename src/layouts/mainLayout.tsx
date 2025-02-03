@@ -1,8 +1,10 @@
 'use client'
 
 import FloatMenuComponent from "@/components/float/floatMenuComponent"
-import NavComponent from "@/components/header/navComponent"
+// import NavComponent from "@/components/header/navComponent"
 import TopSectionComponent from "@/components/header/topSectionComponent"
+import dynamic from "next/dynamic";
+const NavComponent = dynamic(() => import('@/components/header/navComponent'), { ssr: false });
 
 
 export default function MainLayout(props: { children: React.ReactNode }) {
