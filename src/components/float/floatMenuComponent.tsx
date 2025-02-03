@@ -29,7 +29,7 @@ export default function FloatMenuComponent() {
 
     {/* AI 机器人图标 */}
     <Tooltip title="智能客服" arrow placement="right">
-      <div className="text-[#1f1f1f] hover:bg-[#f0f0f0] p-2 rounded-lg transition-colors cursor-pointer">
+      <div onClick={()=>router.push("/ai")} className="text-[#1f1f1f] hover:bg-[#f0f0f0] p-2 rounded-lg transition-colors cursor-pointer">
         <FaceIcon  sx={{ fontSize: 24 }} />
       </div>
     </Tooltip>

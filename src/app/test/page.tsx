@@ -1,7 +1,52 @@
 // 'use client'
-// import React, { useState } from 'react';
 
-// export default function Chat() {
+
+// import React, { useState, useRef } from 'react';
+// import { Button, TextField, Box, List, ListItem, ListItemText, Paper, Typography } from '@mui/material';
+// import { styled } from '@mui/system';
+
+// const ChatContainer = styled(Box)({
+//     display: 'flex',
+//     flexDirection: 'column',
+//     width: '400px',
+//     margin: 'auto',
+//     padding: '16px',
+//     backgroundColor: '#f7f7f7',
+//     borderRadius: '8px',
+//     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+// });
+
+// const MessageList = styled(List)({
+//     maxHeight: '400px',
+//     overflowY: 'auto',
+//     marginBottom: '16px',
+//     padding: '8px',
+// });
+
+// const ChatMessage = styled(ListItem)(({ sender }: { sender: string }) => ({
+//     backgroundColor: sender === 'User' ? '#d1f7d1' : '#f0f0f0',
+//     borderRadius: '8px',
+//     marginBottom: '8px',
+//     padding: '12px',
+//     alignSelf: sender === 'User' ? 'flex-end' : 'flex-start',
+//     maxWidth: '70%',
+//     wordBreak: 'break-word',
+// }));
+
+// const InputContainer = styled(Box)({
+//     display: 'flex',
+//     alignItems: 'center',
+//     gap: '8px',
+// });
+
+// const ChatFooter = styled(Box)({
+//     marginTop: '16px',
+//     textAlign: 'center',
+//     fontStyle: 'italic',
+//     color: '#888',
+// });
+
+// export default function AI() {
 //     const [messages, setMessages] = useState<{ sender: string, text: string }[]>([]); // 聊天消息
 //     const [input, setInput] = useState(''); // 用户输入
 //     const [loading, setLoading] = useState(false); // 控制加载状态
@@ -9,20 +54,22 @@
 //     const [abortController, setAbortController] = useState<AbortController | null>(null); // 用于中断请求
 
 //     // 生成文本的异步函数
-//     async function generateText(prompt: any) {
+//     async function generateText(prompt: string) {
 //         const controller = new AbortController();
 //         setAbortController(controller);
 
 //         try {
-//             const response = await fetch("http://localhost:8080/api/ai-server/talk", {
+//             const response = await fetch("http://localhost:11434/api/generate", {
 //                 method: "POST",
 //                 headers: {
-//                     "Content-Type": "application/json",
+//                     "Content-Type": "application/json"
 //                 },
 //                 body: JSON.stringify({
-//                     prompt: prompt,
+//                     model: "deepseek-r1:1.5b", // 模型名称和版本
+//                     prompt: prompt, // 输入的提示
+//                     stream: true, // 启用流式响应
 //                 }),
-//                 signal: controller.signal,
+//                 signal: controller.signal // 传递中断信号
 //             });
 
 //             if (!response.ok) {
@@ -34,29 +81,40 @@
 //                 const reader = response.body.getReader();
 //                 const decoder = new TextDecoder("utf-8");
 
+//                 // 读取流数据并逐块处理
 //                 let fullResponse = "";
-//                 let done = false;
-
-//                 while (!done) {
-//                     const { value, done: chunkDone } = await reader.read();
-//                     done = chunkDone;
+//                 reader.read().then(function processText({ done, value }) {
+//                     if (done) {
+//                         console.log("Stream complete");
+//                         setLoading(false);
+//                         return;
+//                     }
 
 //                     const chunk = decoder.decode(value, { stream: true });
-//                     const lines = chunk.split("\n\n");
-
-//                     for (const line of lines) {
-//                         if (line) {
-//                             fullResponse += line;
-//                             setMessages((prevMessages) => [
-//                                 ...prevMessages.slice(0, prevMessages.length - 1),
-//                                 { sender: "Bot", text: fullResponse },
-//                             ]);
-//                         }
+//                     const parsedChunk = JSON.parse(chunk); // 解析每个块
+//                     if (parsedChunk.response) {
+//                         fullResponse += parsedChunk.response; // 只保留 response 字段
 //                     }
-//                 }
-//                 setLoading(false);
+
+//                     // 更新消息内容
+//                     setMessages((prevMessages) => [
+//                         ...prevMessages.slice(0, prevMessages.length - 1),
+//                         { sender: 'Bot', text: fullResponse }
+//                     ]);
+
+//                     // 继续读取下一个数据块
+//                     reader.read().then(processText);
+//                 }).catch((error) => {
+//                     if (controller.signal.aborted) {
+//                         console.log("Request was aborted");
+//                     } else {
+//                         console.error("Stream reading error:", error);
+//                     }
+//                     setLoading(false);
+//                 });
 //             }
 //         } catch (error) {
+//             // 处理被中断的情况
 //             if (controller.signal.aborted) {
 //                 console.log("Request aborted by user");
 //             } else {
@@ -66,8 +124,9 @@
 //         }
 //     }
 
+//     // 处理用户点击发送消息
 //     const handleSendMessage = () => {
-//         if (!input || messageCount >= 10) return;
+//         if (!input || messageCount >= 10) return; // 如果没有输入或已达到最大消息数，不执行
 
 //         setMessages((prevMessages) => [
 //             ...prevMessages,
@@ -75,23 +134,26 @@
 //         ]);
 //         setInput('');
 //         setLoading(true);
-//         setMessageCount((prevCount) => prevCount + 1);
+//         setMessageCount((prevCount) => prevCount + 1); // 增加消息计数
 
+//         // 发送消息并获取回复
 //         generateText(input).catch((err) => {
 //             console.error("Error generating text:", err);
 //             setLoading(false);
 //         });
 
+//         // 添加一个等待机器人的消息
 //         setMessages((prevMessages) => [
 //             ...prevMessages,
 //             { sender: 'Bot', text: "正在思考..." }
 //         ]);
 //     };
 
+//     // 中断正在进行的请求
 //     const handleAbortRequest = () => {
 //         if (abortController && !abortController.signal.aborted) {
-//             abortController.abort();
-//             setLoading(false);
+//             abortController.abort(); // 中断请求
+//             setLoading(false); // 停止加载状态
 //             setMessages((prevMessages) => [
 //                 ...prevMessages,
 //                 { sender: 'Bot', text: "回答已中断。" }
@@ -99,73 +161,58 @@
 //         }
 //     };
 
+//     // 重置聊天
 //     const handleResetChat = () => {
 //         setMessages([]);
 //         setMessageCount(0);
 //     };
 
 //     return (
-//         <div className="flex flex-col p-6 max-w-lg mx-auto bg-white rounded-lg shadow-lg h-[550px]">
-//             <div className="text-center mb-4">
-//                 <div className="text-10xl font-semibold">聊天机器人</div>
-//             </div>
+//         <ChatContainer>
+//             <Typography variant="h5" align="center" gutterBottom>聊天机器人</Typography>
+//             <MessageList>
+//                 {messages.map((msg, index) => (
+//                     <ChatMessage key={index} sender={msg.sender}>
+//                         <ListItemText primary={msg.text} />
+//                     </ChatMessage>
+//                 ))}
+//             </MessageList>
 
-//             <div className="flex-1 overflow-y-auto mb-4">
-//                 <div className="space-y-4">
-//                     {messages.map((msg, index) => (
-//                         <div key={index} className={`flex ${msg.sender === 'User' ? 'justify-end' : 'justify-start'}`}>
-//                             <div className={`flex items-center space-x-3 ${msg.sender === 'User' ? 'flex-row-reverse' : ''}`}>
-//                                 {msg.sender !== 'User' && <img src="/images/go.jpg" alt="Bot Avatar" className="w-10 h-10 rounded-full" />}
-//                                 <div className={`p-3 rounded-xl max-w-xs ${msg.sender === 'User' ? 'bg-blue-500 text-white' : 'bg-gray-1000'}`}>
-//                                     <p>{msg.text}</p>
-//                                 </div>
-//                             </div>
-//                         </div>
-//                     ))}
-//                 </div>
-//             </div>
-
-//             <div className="flex items-center gap-10 mt-4">
-//                 <input
-//                     type="text"
+//             {/* 输入框和发送按钮 */}
+//             <InputContainer>
+//                 <TextField
 //                     value={input}
 //                     onChange={(e) => setInput(e.target.value)}
-//                     className="flex-1 p-10 border rounded-md shadow-sm focus:outline-none focus:ring-10 focus:ring-blue-500"
+//                     variant="outlined"
+//                     fullWidth
 //                     placeholder="输入消息..."
+//                     sx={{ marginRight: 1 }}
 //                     disabled={loading || messageCount >= 10}
 //                 />
-//                 <button
-//                     onClick={handleSendMessage}
-//                     className="px-4 py-10 bg-blue-500 text-white rounded-md disabled:bg-gray-300"
-//                     disabled={loading || messageCount >= 10}
-//                 >
+//                 <Button onClick={handleSendMessage} variant="contained" disabled={loading || messageCount >= 10}>
 //                     发送
-//                 </button>
-//             </div>
+//                 </Button>
+//             </InputContainer>
 
+//             {/* 中断按钮 */}
 //             {loading && (
-//                 <div className="text-center mt-4">
-//                     <button
-//                         onClick={handleAbortRequest}
-//                         className="px-4 py-10 border rounded-md text-blue-500 hover:bg-blue-100"
-//                     >
-//                         中断回答
-//                     </button>
-//                 </div>
+//                 <Box sx={{ marginTop: 2, textAlign: 'center' }}>
+//                     <Button variant="outlined" onClick={handleAbortRequest}>中断回答</Button>
+//                 </Box>
 //             )}
 
+//             {/* 提示文本 */}
 //             {messageCount >= 10 && (
-//                 <div className="text-center mt-4 italic text-gray-600">
-//                     <p>对话已达到最大限制，点击刷新开始新对话</p>
-//                     <button
-//                         onClick={handleResetChat}
-//                         className="mt-10 px-4 py-10 border rounded-md text-blue-500 hover:bg-blue-100"
-//                     >
-//                         刷新
-//                     </button>
-//                 </div>
+//                 <ChatFooter>
+//                     <Typography variant="body2" color="textSecondary">
+//                         对话已达到最大限制，点击刷新开始新对话
+//                     </Typography>
+//                     <Button variant="outlined" onClick={handleResetChat}>刷新</Button>
+//                 </ChatFooter>
 //             )}
-//         </div>
+
+//             {loading && <Box sx={{ marginTop: 2, textAlign: 'center' }}>正在加载...</Box>}
+//         </ChatContainer>
 //     );
 // }
 
