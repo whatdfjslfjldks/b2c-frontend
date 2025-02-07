@@ -5,14 +5,14 @@ import { Provider } from 'react-redux';
 import { store } from '../middleware/redux/store';
 import { TokenChecker } from "@/auth/auth";
 import "../styles/globals.css"
+// 邪了门了，我是react18.3.1 他说部分功能19用不了，无视风险强制按照补丁包，嘿，好了
+import '@ant-design/v5-patch-for-react-19'; // 我是补丁包
 
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    // console.log("useEffect");
-    // 判断设备是否是手机
     const userAgent = navigator.userAgent.toLowerCase();
     const mobile = /iphone|ipod|android|windows phone|blackberry|mobile|tablet/.test(userAgent);
     setIsMobile(mobile);
@@ -37,11 +37,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <Provider store={store}>
-          {/* <main> */}
           <TokenChecker>
             {children}
             </TokenChecker>
-            {/* </main> */}
         </Provider>
       </body>
     </html>

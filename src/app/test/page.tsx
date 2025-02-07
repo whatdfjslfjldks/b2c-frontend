@@ -218,12 +218,12 @@
 
 
 
-'use client'
+// 'use client'
 
-import { fetchAPI } from "@/api/fetchApi"
-import { listenProductInfo } from "@/middleware/broadcast/sendPoductInfo"
-import { Button } from "@mui/material"
-import { useEffect } from "react"
+// import { fetchAPI } from "@/api/fetchApi"
+// import { listenProductInfo } from "@/middleware/broadcast/sendPoductInfo"
+// import { Button } from "@mui/material"
+// import { useEffect } from "react"
 
 
 
@@ -248,46 +248,105 @@ import { useEffect } from "react"
 //     string img_url = 1;
 //   }
   
-export default function Test() {
+// export default function Test() {
 
-    const handleClick = () => {
-        fetchAPI('/product-server/uploadSecKillProduct', {
-            method: 'POST',
-            body: JSON.stringify({
-                name: "秒杀商品名称",                   // 商品名称
-                description: "商品描述",               // 商品描述
-                original_price: 99.99,                 // 原始价格
-                price: 89.99,                          // 当前价格
-                stock: 100,                            // 商品库存
-                start_time: "2025-02-05T10:00:00Z",    // 秒杀开始时间
-                duration: "3600",                      // 秒杀持续时间，单位秒
-                img: [
-                    { img_url: "https://example.com/img1.jpg" },  // 图片1
-                    { img_url: "https://example.com/img2.jpg" },  // 图片2
-                ],  
-                type: [
-                    { type_name: "电子产品" },  // 类别1
-                    { type_name: "手机" },      // 类别2
-                ], 
-                session_id: 1,                         // 场次ID
-                category_id: 101,                      // 类别ID
-            })
+//     const handleClick = () => {
+//         fetchAPI('/product-server/uploadSecKillProduct', {
+//             method: 'POST',
+//             body: JSON.stringify({
+//                 name: "秒杀商品名称",                   // 商品名称
+//                 description: "商品描述",               // 商品描述
+//                 original_price: 99.99,                 // 原始价格
+//                 price: 89.99,                          // 当前价格
+//                 stock: 100,                            // 商品库存
+//                 start_time: "2025-02-05T10:00:00Z",    // 秒杀开始时间
+//                 duration: "3600",                      // 秒杀持续时间，单位秒
+//                 img: [
+//                     { img_url: "https://example.com/img1.jpg" },  // 图片1
+//                     { img_url: "https://example.com/img2.jpg" },  // 图片2
+//                 ],  
+//                 type: [
+//                     { type_name: "电子产品" },  // 类别1
+//                     { type_name: "手机" },      // 类别2
+//                 ], 
+//                 session_id: 1,                         // 场次ID
+//                 category_id: 101,                      // 类别ID
+//             })
+//         })
+//     }
+
+//     useEffect(()=>{
+//         listenProductInfo((data:any) => {
+//             if(data.type === "2"){
+//                 console.log('New product added:', data.msg);
+//             }
+//         })
+//     })
+
+//     return (
+//         <div>
+//             <Button onClick={handleClick} variant="outlined">
+//                 Test
+//             </Button>
+//             <img
+//              src="https://qr.alipay.com/bax08773riv7tewzmqsl00d9"
+//              width={300}
+//              height={300}
+//               alt="" />
+//         </div>
+//     )
+// }
+
+'use client'
+import React, { useState } from 'react';
+import {QRCodeCanvas} from 'qrcode.react';
+import { Button } from '@mui/material';
+import { fetchAPI } from '@/api/fetchApi';
+import MyEChartsComponent from '../echarts/page';
+
+const QRCodeComponent = () => {
+    const [qrCode,setQrCode]=useState<string|null>(null)
+
+
+    function handleClick(){
+       fetchAPI('/pay-server/tradePreCreate',{
+        method:'POST',
+        body:JSON.stringify({
+            subject:'测试支付',
+            total_amount:0.01,
+            return_url:'test',
         })
+       })
+       .then((data)=>{
+        if(data.code===200){
+            setQrCode(data.data.code_url)
+        }else{
+            alert("失败！")
+        }
+       })
     }
-
-    useEffect(()=>{
-        listenProductInfo((data:any) => {
-            if(data.type === "2"){
-                console.log('New product added:', data.msg);
-            }
-        })
-    })
 
     return (
         <div>
-            <Button onClick={handleClick} variant="outlined">
-                Test
-            </Button>
+            <MyEChartsComponent />
+
+<Button onClick={handleClick} variant='outlined' color='primary'>
+    测试
+</Button>
+
+            <h2>支付宝支付二维码</h2>
+            {qrCode===null ? <div>请先点击测试按钮</div>:
+            <div>
+            <QRCodeCanvas
+                value={qrCode}
+                size={256}
+                level={"Q"}
+                includeMargin={true}
+            />
+            </div>
+            }
         </div>
-    )
-}
+    );
+};
+
+export default QRCodeComponent;

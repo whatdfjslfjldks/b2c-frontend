@@ -119,7 +119,7 @@ function handleProductClick(product:any) {
       <MainLayout>
         <div className="pl-[28px] pr-[28px]">
           {/* 面包屑导航 */}
-          <div className="flex flex-row items-center bg-[#f5f5f5] w-full h-[46px] mt-[10px] pl-[10px]">
+          <div className="flex flex-row items-center w-full h-[46px] mt-[10px] pl-[10px]">
             <Breadcrumbs separator="›" aria-label="breadcrumb">
               <div
                 onClick={() => {
@@ -134,7 +134,7 @@ function handleProductClick(product:any) {
           </div>
 
           {/* 商品分类导航栏 */}
-          <div className="flex flex-row items-center bg-[#f5f5f5] w-full h-[50px] mt-[10px] pl-[10px]">
+          <div className="flex flex-row items-center  w-full h-[50px] mt-[10px] pl-[10px]">
             {menuItemsClassify.map((item) => (
               <div
                 key={item.id}
@@ -163,7 +163,7 @@ function handleProductClick(product:any) {
           </div>
 
           {/* 排序 */}
-          <div className="flex flex-row  items-center bg-[#f5f5f5] w-full h-[40px] mt-[5px] pl-[10px]">
+          <div className="flex flex-row  items-center  w-full h-[40px] mt-[5px] pl-[10px]">
             <div className="text-[#969696] text-[14px] font-custom">排序：</div>
             <div
               onClick={() => setState({

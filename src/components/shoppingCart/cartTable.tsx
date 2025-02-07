@@ -1,48 +1,83 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Checkbox, TablePagination, Typography, Box, Grid, Avatar } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import { Delete } from '@mui/icons-material';
+import { getCartFromLocalStorage, setCartInfo } from '@/middleware/redux/cartSlice';
+import Loading from '../loading/loadingComponents';
+import Image from 'next/image';
+import { useDispatch } from 'react-redux';
+import { useRouter } from 'next/navigation';
 
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  description: string;
-  imageUrl: string;
+interface Cart {
+  productList:product[]
+}
+interface product {
+  id:number,
+  name:string,
+  cover:string, // 封面，选列表第一个
+  type_name:string, 
+  price:number, // 单价
+  amount:number, // 购买数量
 }
 
+
 const CartTable: React.FC = () => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    { id: 1, name: '商品 A', price: 100, quantity: 2, description: '这是商品A的描述', imageUrl: 'https://via.placeholder.com/50' },
-    { id: 2, name: '商品 B', price: 200, quantity: 1, description: '这是商品B的描述', imageUrl: 'https://via.placeholder.com/50' },
-    { id: 3, name: '商品 C', price: 150, quantity: 3, description: '这是商品C的描述', imageUrl: 'https://via.placeholder.com/50' },
-    { id: 4, name: '商品 D', price: 120, quantity: 1, description: '这是商品D的描述', imageUrl: 'https://via.placeholder.com/50' },
-    { id: 5, name: '商品 E', price: 180, quantity: 2, description: '这是商品E的描述', imageUrl: 'https://via.placeholder.com/50' },
-    { id: 6, name: '商品 F', price: 250, quantity: 1, description: '这是商品F的描述', imageUrl: 'https://via.placeholder.com/50' },
-    { id: 7, name: '商品 G', price: 300, quantity: 3, description: '这是商品G的描述', imageUrl: 'https://via.placeholder.com/50' },
-    { id: 8, name: '商品 H', price: 160, quantity: 1, description: '这是商品H的描述', imageUrl: 'https://via.placeholder.com/50' },
-    { id: 9, name: '商品 I', price: 110, quantity: 4, description: '这是商品I的描述', imageUrl: 'https://via.placeholder.com/50' },
-    { id: 10, name: '商品 J', price: 220, quantity: 2, description: '这是商品J的描述', imageUrl: 'https://via.placeholder.com/50' },
-  ]);
+  const [cartItems, setCartItems] = useState<Cart|null>(null)
   const [page, setPage] = useState(0); // 当前页码
-  const [selectedItems, setSelectedItems] = useState<number[]>([]); // 选中的商品id
+  const [selectedItems, setSelectedItems] = useState<number[]>([]); // 选中的商品index
   const itemsPerPage = 5; // 每页显示的商品数
+  const [loadState,setLoadState]=useState({
+    isLoading:true,
+    isEmpty:false,  // 购物车内无商品
+  })
+  const dispatch=useDispatch()
+  const router=useRouter()
+
+
+  useEffect(()=>{
+    const cart=getCartFromLocalStorage()
+    if (cart) {
+      setCartItems(cart)
+      setLoadState({
+        isLoading:false,
+        isEmpty:false,
+      })
+    }else{
+      setLoadState({
+        isLoading:false,
+        isEmpty:true,
+      })
+    }
+  },[])
+
 
   // 处理数量变化
-  const handleQuantityChange = (id: number, quantity: number) => {
-    setCartItems(prevItems =>
-      prevItems.map(item =>
-        item.id === id ? { ...item, quantity } : item
+  const handleQuantityChange = (index: number, amount: number) => {
+    setCartItems((prev) => ({
+      productList: prev!.productList.map((item, idx) =>
+          idx === index ? { ...item, amount } : item
       )
-    );
+    }));
   };
 
-  // 处理分页变更
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
+  // const handleQuantityChange = (index: number, amount: number) => {
+  //   // 获取当前购物车商品列表
+  //   setCartItems((prev) => {
+  //     const updatedProductList = prev!.productList.map((item, idx) =>
+  //       idx === index ? { ...item, amount } : item
+  //     );
+  //     console.log('更新购物车商品列表：', updatedProductList);
+  
+  //     // 同步更新到 Redux 和 localStorage
+  //     dispatch(setCartInfo(updatedProductList));
+  
+  //     return {
+  //       ...prev!,
+  //       productList: updatedProductList,
+  //     };
+  //   });
+  // };
+
 
   // 处理选择某个商品
   const handleSelectItem = (id: number) => {
@@ -55,28 +90,47 @@ const CartTable: React.FC = () => {
 
   // 处理全选/取消全选
   const handleSelectAll = () => {
-    if (selectedItems.length === cartItems.length) {
+    if (selectedItems.length === cartItems?.productList.length) {
       setSelectedItems([]);
     } else {
-      setSelectedItems(cartItems.map(item => item.id));
+      setSelectedItems(cartItems!.productList.map((item,index) => index));
     }
   };
 
   // 计算选中的商品合计
   const calculateTotal = () => {
-    return cartItems
-      .filter(item => selectedItems.includes(item.id))
-      .reduce((total, item) => total + item.price * item.quantity, 0);
+    return cartItems?.productList
+      .filter((_,index) => selectedItems.includes(index))
+      .reduce((total, item) => total + item.price * item.amount, 0);
   };
 
   // 处理去结算
   const handleCheckout = () => {
-    const selectedCartItems = cartItems.filter(item => selectedItems.includes(item.id));
+    const selectedCartItems = cartItems?.productList.filter(item => selectedItems.includes(item.id));
     console.log('用户选择了以下商品：');
-    selectedCartItems.forEach(item => {
-      console.log(`${item.name} - 数量: ${item.quantity} - 总价: ${item.price * item.quantity}`);
+    selectedCartItems?.forEach(item => {
+      console.log(`${item.name} - 数量: ${item.amount} - 总价: ${item.price * item.amount}`);
     });
+
+    router.push('/orderConfirm')
   };
+
+  if(loadState.isLoading) {
+    return (
+      <div>
+        <Loading/>
+      </div>
+    );
+  }
+  if(loadState.isEmpty) {
+    return (
+      <div className='flex justify-center items-center'>
+        <Typography variant="h5" gutterBottom>
+          购物车为空
+        </Typography>
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: '20px' }}>
@@ -86,7 +140,7 @@ const CartTable: React.FC = () => {
             <TableRow>
               <TableCell padding="checkbox">
                 <Checkbox
-                  checked={selectedItems.length === cartItems.length}
+                  checked={selectedItems.length === cartItems?.productList.length}
                   onChange={handleSelectAll}
                   inputProps={{ 'aria-label': '全选' }}
                 />
@@ -99,19 +153,26 @@ const CartTable: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {cartItems.slice(page * itemsPerPage, (page + 1) * itemsPerPage).map(item => (
-              <TableRow key={item.id}>
+          {/* .slice(page * itemsPerPage, (page + 1) * itemsPerPage) */}
+            {cartItems?.productList.map((item,index) => (
+              <TableRow key={index}>
                 <TableCell padding="checkbox">
                   <Checkbox
-                    checked={selectedItems.includes(item.id)}
-                    onChange={() => handleSelectItem(item.id)}
+                    checked={selectedItems.includes(index)}
+                    onChange={() => handleSelectItem(index)}
                     inputProps={{ 'aria-label': `选择 ${item.name}` }}
                   />
                 </TableCell>
                 <TableCell>
                   <Box display="flex" alignItems="center">
-                    <Avatar src={item.imageUrl} alt={item.name} style={{ marginRight: '10px' }} />
-                    <Typography component="div" variant="body2">{item.name}<br /><small>{item.description}</small></Typography>
+                    <Image
+                     src={`${process.env.NEXT_PUBLIC_IMAGE_PREFIX}${item.cover}`}
+                      alt="pic"
+                       width={80}
+                        height={80}
+                         />
+                    {/* <Avatar src={item.cover} alt={item.name} style={{ marginRight: '10px' }} /> */}
+                    <Typography component="div" variant="body2">{item.name}<br /><small>{item.type_name}</small></Typography>
                   </Box>
                 </TableCell>
                 <TableCell align="right">{item.price}</TableCell>
@@ -121,8 +182,8 @@ const CartTable: React.FC = () => {
                       variant="outlined"
                       size="small"
                       style={{ padding: '4px 10px' }}
-                      onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
-                      disabled={item.quantity <= 1}
+                      onClick={() => handleQuantityChange(index, item.amount - 1)}
+                      disabled={item.amount <= 1}
                     >
                       -
                     </Button>
@@ -130,12 +191,12 @@ const CartTable: React.FC = () => {
                         fontSize: 16,
                         color:'#282828',
                         margin: '0 8px'
-                    }}>&yen;{item.quantity}</Typography>
+                    }}>{item.amount}</Typography>
                     <Button
                       variant="outlined"
                       size="small"
                       style={{ padding: '4px 10px' }}
-                      onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                      onClick={() => handleQuantityChange(index, item.amount + 1)}
                     >
                       +
                     </Button>
@@ -144,7 +205,7 @@ const CartTable: React.FC = () => {
                 <TableCell sx={{
                     fontSize: 16,
                     color:'#e93323',
-                }} align="center">&yen;{item.price * item.quantity}</TableCell>
+                }} align="center">&yen;{item.price * item.amount}</TableCell>
                 <TableCell align="center">
                   <div onClick={() => {}} className='cursor-pointer'>
                     <DeleteOutlineIcon sx={{
@@ -157,16 +218,6 @@ const CartTable: React.FC = () => {
           </TableBody>
         </Table>
       </TableContainer>
-
-      <TablePagination
-        rowsPerPageOptions={[5]}
-        component="div"
-        count={cartItems.length}
-        rowsPerPage={itemsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        style={{ marginBottom: '20px' }}
-      />
 
       <Grid container alignItems="center" justifyContent={'flex-end'}>
         <Grid item>

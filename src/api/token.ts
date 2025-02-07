@@ -1,10 +1,7 @@
-// tokenUtils.ts
-import { setUserInfo } from '../middleware/redux/userInfoSlice'; // 你的 Redux action
-
 const api_prefix = 'http://localhost:8080/api/user-server';
 
 // 获取本地存储中的访问令牌和刷新令牌
-const getAccessToken = () => {
+export const getAccessToken = () => {
   if (typeof window === 'undefined') return undefined;
   const localStorageItem = localStorage.getItem('userInfo');
   if (!localStorageItem) return undefined;
@@ -30,17 +27,23 @@ export const isTokenValid=async ()=>{
 }
 // 检查访问令牌是否有效
  const checkAccessToken = async () => {
-  const result = await fetch(`${api_prefix}/testAccessToken`, {
-    headers: {
-      'Access-Token': getAccessToken() ?? '',
-    },
-    method: 'POST',
-  }).then((res) => res.text());
-
-  if (result && result === 'ok') {
-    return true;
-  } else {
-    return false;
+  try{
+    const result = await fetch(`${api_prefix}/testAccessToken`, {
+      headers: {
+        'Access-Token': getAccessToken() ?? '',
+      },
+      method: 'POST',
+    }).then((res) => res.text());
+  
+    if (result && result === 'ok') {
+      return true;
+    } else {
+      return false;
+    }
+  }catch(error){
+    if(process.env.NODE_ENV==="development"){
+      console.log("check access token error",error);
+    }
   }
 };
 
@@ -66,7 +69,9 @@ const checkRefreshToken = async () => {
       return false;
     }
   } catch (error) {
-    console.error('Error refreshing token:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error refreshing token:', error);
+    }
     return false;
   }
 };

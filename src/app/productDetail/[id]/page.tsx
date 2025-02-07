@@ -5,12 +5,14 @@ import BottomComponent from "@/components/bottom/bottomComponent";
 import Loading from "@/components/loading/loadingComponents";
 import ProductInfo from "@/components/product/productInfo";
 import MainLayout from "@/layouts/mainLayout";
-import { PImg, productsInfo } from "@/model/vo/productInfoVO";
+import { PImg, PType, productsInfo } from "@/model/vo/productInfoVO";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
-import { type } from "os";
 import { useState, useRef, useEffect } from "react";
 import useSWR from "swr";
+import {message} from 'antd'
+import { useDispatch } from 'react-redux';
+import { setCartInfo } from "@/middleware/redux/cartSlice";
 
 type ProductDetailResponse = {
   code: number;
@@ -22,10 +24,20 @@ type pDetail = {
   product?: productsInfo;
 };
 
+type State = {
+  count: number;
+  selectImg: selectImg | null;
+  selectType: selectType | null;
+};
+
 type selectImg = {
   index: number;
   img_url: string;
 };
+type selectType={
+  index:number;
+  type_name: string;
+}
 
 const getProductDetail = async (id: number): Promise<pDetail> => {
   try {
@@ -92,23 +104,33 @@ export default function ProductDetail() {
   const [productId, setProductId] = useState<number | null>(null);
   const [isExist, setIsExist] = useState<boolean>(false);
   const [productInfo, setProductInfo] = useState<productsInfo | null>(null);
-  const [selectImg, setSelectImg] = useState<selectImg | null>(null);
+  const [state,setState]=useState<State>({
+    count:1,
+    selectImg:null,
+    selectType:null,
+  });
   const [zoomPosition, setZoomPosition] = useState({
     x: 0,
     y: 0,
     showZoom: false,
   });
-
-  const [count, setCount] = useState(1);
+  const [messageApi, contextHolder]=message.useMessage();
+  const dispatch = useDispatch();
 
   const handleDecrement = () => {
-    if (count > 1) {
-      setCount(count - 1);
+    if (state.count > 1) {
+      setState({
+        ...state,
+        count: state.count - 1,
+      });
     }
   };
 
   const handleIncrement = () => {
-    setCount(count + 1);
+    setState({
+      ...state,
+      count: state.count + 1,
+    });
   };
 
   const handleMouseMove = (e: any) => {
@@ -132,22 +154,30 @@ export default function ProductDetail() {
   };
 
   const { data, error, isLoading } = useSWR(id, fetchProductDetail, {
-    // dedupingInterval: 5 * 1000, 
-    // staleTime: 60 * 1000, 
+    // dedupingInterval: 5 * 1000,
+    // staleTime: 60 * 1000,
   });
 
   useEffect(() => {
     if (data) {
-      console.log("data:", data);
       if (data.code === 200 && data.result) {
         setIsExist(true);
         setProductInfo(data.result as productsInfo);
-        if (data.result.pImg && data.result.pImg.length > 0) {
-          setSelectImg({
+        if(!data.result.pImg || !data.result.pType || data.result.pType.length<=0 || data.result.pType.length<=0){
+          return;
+        }
+        setState({
+          ...state,
+          selectImg: {
             index: 0,
             img_url: data.result.pImg[0].img_url,
-          });
-        }
+          },
+          selectType: {
+            index: 0,
+            type_name: data.result.pType[0].type_name,
+          },
+        });
+
       } else if (data.code === 404) {
         setIsExist(false);
         router.push("/error/noitem");
@@ -159,12 +189,38 @@ export default function ProductDetail() {
   }, [data]);
 
   function handleImgClick(item: PImg, index: number) {
-    // console.log(item)
-    setSelectImg({
-      index: index,
-      img_url: item.img_url,
+    setState({
+      ...state,
+      selectImg: {
+        index: index,
+        img_url: item.img_url,
+      },
     });
   }
+  function handleTypeClick(item: PType, index: number) {
+    setState({
+      ...state,
+      selectType: {
+        index: index,
+        type_name: item.type_name,
+      },
+    });
+  }
+
+
+  function addToCart(product: productsInfo){
+    const a={
+      id:product.id,
+      name:product.name,
+      cover:product.pImg[0].img_url,
+      type_name:state.selectType?.type_name,
+      price:product.price,
+      amount:state.count,
+      }
+    dispatch(setCartInfo(a))
+    messageApi.success("加入购物车成功")
+  }
+
 
   if (!isExist) {
     return (
@@ -177,6 +233,7 @@ export default function ProductDetail() {
   return (
     <div>
       <MainLayout>
+        {contextHolder}
         <div className="flex flex-col pl-[60px] pr-[60px] mt-[20px] w-full">
           <div className="flex flex-row w-full h-[550px]">
             {/* 图片 */}
@@ -190,7 +247,7 @@ export default function ProductDetail() {
                         onClick={() => handleImgClick(item, index)}
                         key={index}
                         className={`${
-                          selectImg?.index === index
+                          state.selectImg?.index === index
                             ? "border border-[#ff5000] rounded-md"
                             : ""
                         }border rounded-md border-[#e3e3e3] overflow-hidden w-[90px] h-[90px] mt-[5px] cursor-pointer hover:border hover:border-[#ff5000] hover:rounded-md`}
@@ -218,11 +275,11 @@ export default function ProductDetail() {
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
               >
-                <img
-                  // src="/images/go.jpg"
-                  src={`http://localhost:9000/${selectImg?.img_url}`}
-                  alt="Product Image"
-                  className="border rounded-md border-[#e3e3e3] w-full h-full object-cover cursor-move"
+                <Image
+                  src={`http://localhost:9000/${state.selectImg?.img_url}`}
+                  alt="product"
+                  fill={true}
+                  className="rounded-lg"
                 />
                 {zoomPosition.showZoom && (
                   <div
@@ -257,28 +314,19 @@ export default function ProductDetail() {
                   {productInfo?.price}
                 </div>
                 <div className="text-[#7a7a7a] ml-[10px] text-[14px] font-normal">
-                已有{productInfo?.sold ?`${productInfo?.sold}`:`0`}人购买
+                  已有{productInfo?.sold ? `${productInfo?.sold}` : `0`}人购买
                 </div>
               </div>
 
-{productInfo?.kind_id===2 ? 
-              <div>
+              {productInfo?.kind_id === 2 ? (
                 <div>
-                  开始时间： {productInfo?.start_time}
+                  <div>开始时间： {productInfo?.start_time}</div>
+                  <div>持续时间： {productInfo?.duration}</div>
+                  <div>场次： {productInfo?.session_id}</div>
                 </div>
-                <div>
-                  持续时间： {productInfo?.duration}
-                </div>
-                <div>
-                  场次： {productInfo?.session_id}
-                </div>
-              </div>
-              :
-              <div>
-                
-              </div>
-
-}
+              ) : (
+                <div></div>
+              )}
 
               {/* 分类 */}
               <div className="flex flex-row w-full mt-[10px] ">
@@ -291,9 +339,9 @@ export default function ProductDetail() {
                     <div>
                       {productInfo?.pType.map((item, index) => (
                         <div
+                        onClick={() => handleTypeClick(item, index)}
                           key={index}
-                          className="flex border w-[450px] mb-[10px] border-[#dadde0] bg-[#fff] text-[20px] rounded-sm font-custom p-2 hover:text-[#ff5000] hover:border hover:border-[#ff5000] cursor-pointer"
-                        >
+                          className={`${state.selectType?.index===index ?'border border-[#ff5000] ':''} flex border w-[450px] mb-[10px] border-[#dadde0] bg-[#fff] text-[20px] rounded-sm font-custom p-2 hover:text-[#ff5000] hover:border hover:border-[#ff5000] cursor-pointer`}                        >
                           <div className="text-[16px] font-custom text-[#11192d] line-clamp-1">
                             {item.type_name}
                           </div>
@@ -316,14 +364,14 @@ export default function ProductDetail() {
                   {/* 减号按钮 */}
                   <button
                     onClick={handleDecrement}
-                    disabled={count <= 1}
+                    disabled={state.count <= 1}
                     className="px-3 py-2 text-xl border rounded-full bg-[#f0f0f0] hover:bg-[#e0e0e0] disabled:bg-[#d3d3d3] disabled:cursor-not-allowed"
                   >
                     -
                   </button>
 
                   {/* 数量显示 */}
-                  <span className="text-lg font-semibold">{count}</span>
+                  <span className="text-lg font-semibold">{state.count}</span>
 
                   {/* 加号按钮 */}
                   <button
@@ -337,13 +385,25 @@ export default function ProductDetail() {
 
               {/* 加入购物车和购买按钮 */}
               <div className="flex flex-row items-center w-full mt-[20px] h-[50px]">
-                <div className="flex items-center w-[100px] justify-center bg-[#e93323] border border-[#e93323] h-[50px] p-2 rounded-md cursor-pointer">
-                  <div className="text-[14px] text-[#fff]">加入购物车</div>
-                </div>
+                {productInfo?.kind_id === 1 ? (
+                  <>
+                    <div
+                      onClick={() => addToCart(productInfo)}
+                      className="flex items-center w-[100px] justify-center bg-[#e93323] border border-[#e93323] h-[50px] p-2 rounded-md cursor-pointer"
+                    >
+                      {/* hover:bg-[#fab6b6]  */}
+                      <div className="text-[14px] text-[#fff]">加入购物车</div>
+                    </div>
 
-                <div className="flex items-center w-[100px] ml-[40px] justify-center bg-[#fff] border border-[#e93323] h-[50px] p-2 rounded-md cursor-pointer">
-                  <div className="text-[14px] text-[#e93323]">立即购买</div>
-                </div>
+                    <div className="flex items-center w-[100px] ml-[40px] justify-center bg-[#fff] border border-[#e93323] h-[50px] p-2 rounded-md cursor-pointer">
+                      <div className="text-[14px] text-[#e93323]">立即购买</div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex items-center w-[100px] justify-center bg-[#fff] border border-[#e93323] h-[50px] p-2 rounded-md cursor-pointer">
+                    <div className="text-[14px] text-[#e93323]">立即购买</div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -353,7 +413,7 @@ export default function ProductDetail() {
             <div
               className="absolute border rounded-md border-[#e3e3e3] top-[200px] left-[calc(45%+10px)] w-[450px] h-[450px] z-10"
               style={{
-                backgroundImage: `url(http://localhost:9000/${selectImg?.img_url})`,
+                backgroundImage: `url(http://localhost:9000/${state.selectImg?.img_url})`,
                 backgroundPosition: `${zoomPosition.x}% ${zoomPosition.y}%`,
                 backgroundSize: "250%",
                 pointerEvents: "none",
