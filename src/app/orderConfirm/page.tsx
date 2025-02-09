@@ -2,7 +2,7 @@
 
 import BottomComponent from "@/components/bottom/bottomComponent";
 import MainLayout from "@/layouts/mainLayout";
-import { Breadcrumbs } from "@mui/material";
+import { Breadcrumbs, CircularProgress } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { TextField, Button, Typography, Box, Grid } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
@@ -50,8 +50,7 @@ export default function OrderConfirm() {
   const { TextArea } = Input;
   const [cartItems, setCartItems] = useState<Cart|null>(null)
   const [totalPrice,setTotalPrice]=useState<number>(0)
-
-
+  const [submitLoad,setSubmitLoad]=useState<boolean>(false)
 
   useEffect(()=>{
     const cart=getCartFromLocalStorage()
@@ -76,8 +75,10 @@ export default function OrderConfirm() {
   };
 
   const handleSubmitOrder = () => {
+    setSubmitLoad(true)
     if (!cartItems ||!selectedAddress) {
       message.error('请选择收货地址和商品');
+      setSubmitLoad(false)
       return;
     }
     fetchAPI('/order-server/createOrder', {
@@ -95,7 +96,12 @@ export default function OrderConfirm() {
       }),
     })
     .then((data)=>{
-      console.log("1111: ",data)
+      if(data.code===200){
+        router.push(`/payment?orderId=${data.data.orderId}&totalPrice=${totalPrice}&address=${selectedAddress.address}&detail=${selectedAddress.detail}&note=${note}`)
+      }else{
+        message.error(data.msg)
+      }
+      setSubmitLoad(false)
     })
   };
 
@@ -284,8 +290,16 @@ export default function OrderConfirm() {
               variant="contained"
               color="primary"
               onClick={handleSubmitOrder}
+              disabled={submitLoad}
             >
-              提交订单
+          {submitLoad ? (
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <CircularProgress color="primary" size={24} sx={{ marginRight: 2 }} />
+                      订单处理中
+                    </Box>
+                  ) : (
+                    '提交订单'
+                  )}
             </Button>
 </div>
           </div>

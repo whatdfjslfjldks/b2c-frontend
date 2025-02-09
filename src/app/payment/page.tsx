@@ -3,15 +3,18 @@
 import BottomComponent from "@/components/bottom/bottomComponent";
 import MainLayout from "@/layouts/mainLayout";
 import { Breadcrumbs } from "@mui/material";
-import { useParams,useRouter } from "next/navigation";
+import {useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 
 
 
 export default function Payment() {
-    const orderId = useParams().id;
+    const orderId = useSearchParams().get("orderId")
+    const totalPrice=useSearchParams().get("totalPrice")
+    const address=useSearchParams().get("address")
+    const detail=useSearchParams().get("detail")
+    const note=useSearchParams().get("note")
     const router=useRouter();
-    const totalPrice=50.00;
 
     const handleAliPayClick=()=>{
         router.push(`/aliPay?orderId=${orderId}&totalPrice=${totalPrice}`)
@@ -54,13 +57,13 @@ export default function Payment() {
                 订单编号: {orderId}
             </div>
             <div className="text-[16px] text-[#282828] mt-[12px]">
-                订单价格: 50.00元
+                订单价格: {totalPrice}
             </div>
             <div className="text-[16px] text-[#282828] mt-[12px] ">
-                收货信息: 北京市 北京市 东城区
+                收货地址: {address},{detail}
             </div>
             <div className="text-[16px] text-[#282828] mt-[12px] ">
-                商品名称: 测试商品
+               备注: {note}
             </div>
           </div>
           {/* 支付方式 */}

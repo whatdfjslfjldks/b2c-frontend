@@ -52,3 +52,50 @@ export const secKillTime = [
   {id: 6, label: "18:00"},
   {id: 7, label: "20:00"},
 ]
+
+enum OrderStatus {
+  Pending = 0,       // 待处理（初始状态）
+  Paid = 1,          // 已支付
+  Completed = 2,     // 已完成
+  Shipped = 3,       // 已发货
+  Delivered = 4,     // 已送达
+  Cancelled = 5,     // 已取消
+  PaymentFailed = 6, // 支付失败
+  Refunded = 7,      // 已退款
+}
+
+// 订单状态
+export const statusDescriptions: { [key:number]: string } = {
+  [OrderStatus.Pending]: "待付款",
+  [OrderStatus.Paid]: "待发货",
+  [OrderStatus.Completed]: "已完成",
+  [OrderStatus.Shipped]: "待收货",
+  [OrderStatus.Delivered]: "已送达",
+  [OrderStatus.Cancelled]: "已取消",
+  [OrderStatus.PaymentFailed]: "支付失败",
+  [OrderStatus.Refunded]: "已退款",
+};
+
+// 支付方式
+enum PaymentMethod {
+  Alipay = 0,
+  WechatPay = 1,
+  CashOnDelivery = 2,
+}
+export const paymentMethodDescriptions: { [key:number]: string } = {
+  [PaymentMethod.Alipay]: "支付宝",
+  [PaymentMethod.WechatPay]: "微信支付",
+  [PaymentMethod.CashOnDelivery]: "货到付款",
+};
+
+// 支付状态
+enum PaymentStatus {
+  Unpaid = 0,
+  Paid = 1,
+  // Refunded = 2,
+}
+export const paymentStatusDescriptions: { [key:number]: string } = {
+  [PaymentStatus.Unpaid]: "未支付",
+  [PaymentStatus.Paid]: "已支付",
+  // [PaymentStatus.Refunded]: "已退款",
+};

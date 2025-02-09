@@ -1,5 +1,5 @@
 const fs = require('fs');
-const  cities = require('../model/locationData.js'); // 使用 require 加载模块
+const cities = require('../model/locationData.js'); 
 
 const transformCities = (rawCities) => {
   return rawCities?.map(province => ({

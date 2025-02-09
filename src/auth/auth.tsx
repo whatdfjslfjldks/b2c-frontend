@@ -7,7 +7,6 @@ import { getUserFromLocalStorage, isLogin, loadUserFromLocalStorage, removeUserF
 import { isTokenValid } from "@/api/token";
 import {message} from 'antd'
 import useSWR from "swr";
-import { sendMsg } from "@/middleware/broadcast/messager";
 
 
 // 无感登录
@@ -23,7 +22,6 @@ export const TokenChecker = (props: { children: React.ReactNode }) => {
       // 双token过期
      if (!res){
       messageApi.error("登录过期，请重新登录")
-      sendMsg("msg","登录过期，请重新登录")
       dispatch(removeUserFromLocalStorage());
       // console.log("token is expired")
      }else{
