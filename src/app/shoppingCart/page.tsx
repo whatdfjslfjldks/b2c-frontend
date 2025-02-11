@@ -2,7 +2,6 @@
 
 import BottomComponent from "@/components/bottom/bottomComponent";
 import MainLayout from "@/layouts/mainLayout"
-import { getCartFromLocalStorage } from "@/middleware/redux/cartSlice";
 import { Breadcrumbs } from "@mui/material";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";

@@ -2,84 +2,78 @@
 import React, { useEffect, useState } from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Checkbox, TablePagination, Typography, Box, Grid, Avatar } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import { getCartFromLocalStorage, setCartInfo } from '@/middleware/redux/cartSlice';
-import Loading from '../loading/loadingComponents';
-import Image from 'next/image';
 import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/navigation';
+import { updateProductQuantity, removeProductFromCart, getCartFromLocalStorage } from '@/middleware/redux/cartSlice'; // 导入 actions
+import Loading from '../loading/loadingComponents';
+import Image from 'next/image';
 
 interface Cart {
-  productList:product[]
-}
-interface product {
-  id:number,
-  name:string,
-  cover:string, // 封面，选列表第一个
-  type_name:string, 
-  price:number, // 单价
-  amount:number, // 购买数量
+  productList: product[];
 }
 
+interface product {
+  id: number;
+  name: string;
+  cover: string; // 封面，选列表第一个
+  type_name: string;
+  price: number; // 单价
+  amount: number; // 购买数量
+}
 
 const CartTable: React.FC = () => {
-  const [cartItems, setCartItems] = useState<Cart|null>(null)
+  const [cartItems, setCartItems] = useState<Cart | null>(null);
   const [page, setPage] = useState(0); // 当前页码
   const [selectedItems, setSelectedItems] = useState<number[]>([]); // 选中的商品index
   const itemsPerPage = 5; // 每页显示的商品数
-  const [loadState,setLoadState]=useState({
-    isLoading:true,
-    isEmpty:false,  // 购物车内无商品
-  })
-  const dispatch=useDispatch()
-  const router=useRouter()
+  const [loadState, setLoadState] = useState({
+    isLoading: true,
+    isEmpty: false,  // 购物车内无商品
+  });
+  const dispatch = useDispatch();
+  const router = useRouter();
 
-
-  useEffect(()=>{
-    const cart=getCartFromLocalStorage()
+  useEffect(() => {
+    const cart = getCartFromLocalStorage();
     if (cart) {
-      setCartItems(cart)
+      setCartItems(cart);
       setLoadState({
-        isLoading:false,
-        isEmpty:false,
-      })
-    }else{
+        isLoading: false,
+        isEmpty: false,
+      });
+    } else {
       setLoadState({
-        isLoading:false,
-        isEmpty:true,
-      })
+        isLoading: false,
+        isEmpty: true,
+      });
     }
-  },[])
+  }, []);
 
-
-  // 处理数量变化
+  // 更新数量
   const handleQuantityChange = (index: number, amount: number) => {
-    setCartItems((prev) => ({
-      productList: prev!.productList.map((item, idx) =>
-          idx === index ? { ...item, amount } : item
-      )
-    }));
+    const updatedCartItems = {
+      productList: cartItems!.productList.map((item, idx) =>
+        idx === index ? { ...item, amount } : item
+      ),
+    };
+    setCartItems(updatedCartItems);
+
+    // 同步到 Redux 和 localStorage
+    dispatch(updateProductQuantity({ productId: updatedCartItems.productList[index].id, newAmount: amount }));
   };
 
-  // const handleQuantityChange = (index: number, amount: number) => {
-  //   // 获取当前购物车商品列表
-  //   setCartItems((prev) => {
-  //     const updatedProductList = prev!.productList.map((item, idx) =>
-  //       idx === index ? { ...item, amount } : item
-  //     );
-  //     console.log('更新购物车商品列表：', updatedProductList);
-  
-  //     // 同步更新到 Redux 和 localStorage
-  //     dispatch(setCartInfo(updatedProductList));
-  
-  //     return {
-  //       ...prev!,
-  //       productList: updatedProductList,
-  //     };
-  //   });
-  // };
+  // 删除商品
+  const handleDeleteItem = (index: number) => {
+    const updatedCartItems = {
+      productList: cartItems!.productList.filter((_, idx) => idx !== index),
+    };
+    setCartItems(updatedCartItems);
 
+    // 同步到 Redux 和 localStorage
+    dispatch(removeProductFromCart({ productId: cartItems!.productList[index].id }));
+  };
 
-  // 处理选择某个商品
+  // 选择商品
   const handleSelectItem = (id: number) => {
     setSelectedItems(prevSelectedItems =>
       prevSelectedItems.includes(id)
@@ -88,23 +82,23 @@ const CartTable: React.FC = () => {
     );
   };
 
-  // 处理全选/取消全选
+  // 选择全选
   const handleSelectAll = () => {
     if (selectedItems.length === cartItems?.productList.length) {
       setSelectedItems([]);
     } else {
-      setSelectedItems(cartItems!.productList.map((item,index) => index));
+      setSelectedItems(cartItems!.productList.map((item, index) => index));
     }
   };
 
-  // 计算选中的商品合计
+  // 计算选中的商品总额
   const calculateTotal = () => {
     return cartItems?.productList
-      .filter((_,index) => selectedItems.includes(index))
+      .filter((_, index) => selectedItems.includes(index))
       .reduce((total, item) => total + item.price * item.amount, 0);
   };
 
-  // 处理去结算
+  // 去结算
   const handleCheckout = () => {
     const selectedCartItems = cartItems?.productList.filter(item => selectedItems.includes(item.id));
     console.log('用户选择了以下商品：');
@@ -112,17 +106,24 @@ const CartTable: React.FC = () => {
       console.log(`${item.name} - 数量: ${item.amount} - 总价: ${item.price * item.amount}`);
     });
 
-    router.push('/orderConfirm')
+    // 通过 URL 参数传递商品信息
+    const urlParams = new URLSearchParams();
+    selectedCartItems?.forEach(item => {
+      urlParams.append('productIds[]', item.id.toString());
+      urlParams.append('amounts[]', item.amount.toString());
+    });
+
+    router.push(`/orderConfirm?product=${urlParams.toString()}`);
   };
 
-  if(loadState.isLoading) {
+  if (loadState.isLoading) {
     return (
       <div>
-        <Loading/>
+        <Loading />
       </div>
     );
   }
-  if(loadState.isEmpty) {
+  if (loadState.isEmpty) {
     return (
       <div className='flex justify-center items-center'>
         <Typography variant="h5" gutterBottom>
@@ -153,8 +154,7 @@ const CartTable: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-          {/* .slice(page * itemsPerPage, (page + 1) * itemsPerPage) */}
-            {cartItems?.productList.map((item,index) => (
+            {cartItems?.productList.map((item, index) => (
               <TableRow key={index}>
                 <TableCell padding="checkbox">
                   <Checkbox
@@ -166,12 +166,11 @@ const CartTable: React.FC = () => {
                 <TableCell>
                   <Box display="flex" alignItems="center">
                     <Image
-                     src={`${process.env.NEXT_PUBLIC_IMAGE_PREFIX}${item.cover}`}
+                      src={`${process.env.NEXT_PUBLIC_IMAGE_PREFIX}${item.cover}`}
                       alt="pic"
-                       width={80}
-                        height={80}
-                         />
-                    {/* <Avatar src={item.cover} alt={item.name} style={{ marginRight: '10px' }} /> */}
+                      width={80}
+                      height={80}
+                    />
                     <Typography component="div" variant="body2">{item.name}<br /><small>{item.type_name}</small></Typography>
                   </Box>
                 </TableCell>
@@ -207,7 +206,7 @@ const CartTable: React.FC = () => {
                     color:'#e93323',
                 }} align="center">&yen;{item.price * item.amount}</TableCell>
                 <TableCell align="center">
-                  <div onClick={() => {}} className='cursor-pointer'>
+                  <div onClick={() => handleDeleteItem(index)} className='cursor-pointer'>
                     <DeleteOutlineIcon sx={{
                       fontSize: 28,
                     }}/>

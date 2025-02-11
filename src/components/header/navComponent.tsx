@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
-import {Popover, Popper } from "@mui/material";
+import {Popper } from "@mui/material";
 import { useSelector } from "react-redux";
 import { RootState } from "../../middleware/redux/store";
 import { DownOutlined} from '@ant-design/icons';
@@ -12,6 +12,7 @@ import { Dropdown } from 'antd';
 import { useDispatch } from "react-redux";
 import {isLogin, removeUserFromLocalStorage} from "../../middleware/redux/userInfoSlice"
 import {message} from 'antd'
+import Image from 'next/image';
 
 export default function NavComponent() {
   const [region, setRegion] = useState("中国大陆");
@@ -23,18 +24,7 @@ export default function NavComponent() {
   const dispatch = useDispatch();
   const { userInfo } = useSelector((state: RootState) => state.user);
   const [messageApi, contextHolder] = message.useMessage();
-
-  // useEffect(() => {
-  //   if (typeof window===undefined){
-  //     return
-  //   }
-  //   // console.log("111111111")
-  //   if(isLogin()){
-  //     setLogin(true);
-  //   }else{
-  //     setLogin(false);
-  //   }
-  // }, []);
+  
   function handleLogin() {
     router.push("/login");
   }
@@ -61,6 +51,22 @@ export default function NavComponent() {
 
  const handleHelpSelect: MenuProps['onClick'] = (e) =>{
   // setHelpOption((e.domEvent.target as HTMLElement).innerText);
+  switch (e.key) {
+    case '1':
+      router.push("/support");
+      break;
+    case '2':
+      // router.push("/messageCenter");
+      break;
+    case '3':
+      // router.push("/feedback");
+      break;
+    case '4':
+      // router.push("/report");
+      break;
+    default:
+      break;
+  }
   }
 
   const items: MenuProps['items'] = [
@@ -122,10 +128,10 @@ export default function NavComponent() {
                 <div className="flex flex-row ">
                   <div className="mt-[15px] ml-[15px] cursor-pointer">
                     <img
-                      src="/images/1.JPG"
+                    // src="http://localhost:9000/b2c/default.jpg"
+                    src={`${process.env.NEXT_PUBLIC_IMAGE_PREFIX}${userInfo?.avatarUrl}`}
                       alt="avatar"
-                      className="w-[50px] h-[50px]
-                rounded-full mr-[5px]"
+                      className="rounded-full w-[50px] h-[50px] mr-[5px] object-cover"
                     />
                   </div>
                   <div className="flex flex-col mt-[15px] ml-[8px]">
@@ -133,7 +139,7 @@ export default function NavComponent() {
                       {userInfo?.username}
                     </div>
                     <div className="flex flex-row justify-center items-center mt-[5px]">
-                      <div className="text-[12px] text-[#1f1f1f] hover:text-[#ff5000] cursor-pointer">
+                      <div onClick={()=>router.push("/user?page_type=0")} className="text-[12px] text-[#1f1f1f] hover:text-[#ff5000] cursor-pointer">
                         账号管理
                       </div>
                       <div className="border-r-[1.5px] ml-[10px] border-[gray] h-[12px]"></div>

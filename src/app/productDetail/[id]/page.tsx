@@ -5,7 +5,7 @@ import BottomComponent from "@/components/bottom/bottomComponent";
 import Loading from "@/components/loading/loadingComponents";
 import ProductInfo from "@/components/product/productInfo";
 import MainLayout from "@/layouts/mainLayout";
-import { PImg, PType, productsInfo } from "@/model/vo/productInfoVO";
+import { PImg, PPType, PType, productsInfo2 } from "@/model/vo/productInfoVO";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
@@ -17,11 +17,11 @@ import { setCartInfo } from "@/middleware/redux/cartSlice";
 type ProductDetailResponse = {
   code: number;
   isExist: boolean;
-  result?: productsInfo;
+  result?: productsInfo2;
 };
 type pDetail = {
   code: number;
-  product?: productsInfo;
+  product?: productsInfo2;
 };
 
 type State = {
@@ -36,6 +36,7 @@ type selectImg = {
 };
 type selectType={
   index:number;
+  type_id: number;
   type_name: string;
 }
 
@@ -103,7 +104,7 @@ export default function ProductDetail() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [productId, setProductId] = useState<number | null>(null);
   const [isExist, setIsExist] = useState<boolean>(false);
-  const [productInfo, setProductInfo] = useState<productsInfo | null>(null);
+  const [productInfo, setProductInfo] = useState<productsInfo2 | null>(null);
   const [state,setState]=useState<State>({
     count:1,
     selectImg:null,
@@ -162,7 +163,7 @@ export default function ProductDetail() {
     if (data) {
       if (data.code === 200 && data.result) {
         setIsExist(true);
-        setProductInfo(data.result as productsInfo);
+        setProductInfo(data.result as productsInfo2);
         if(!data.result.pImg || !data.result.pType || data.result.pType.length<=0 || data.result.pType.length<=0){
           return;
         }
@@ -174,6 +175,7 @@ export default function ProductDetail() {
           },
           selectType: {
             index: 0,
+            type_id: data.result.pType[0].type_id,
             type_name: data.result.pType[0].type_name,
           },
         });
@@ -197,26 +199,28 @@ export default function ProductDetail() {
       },
     });
   }
-  function handleTypeClick(item: PType, index: number) {
+  function handleTypeClick(item: PPType, index: number) {
     setState({
       ...state,
       selectType: {
         index: index,
+        type_id: item.type_id,
         type_name: item.type_name,
       },
     });
   }
 
 
-  function addToCart(product: productsInfo){
+  function addToCart(product: productsInfo2){
     const a={
-      id:product.id,
+      id:state.selectType?.type_id,
       name:product.name,
       cover:product.pImg[0].img_url,
       type_name:state.selectType?.type_name,
       price:product.price,
       amount:state.count,
       }
+      console.log("a:",a)
     dispatch(setCartInfo(a))
     messageApi.success("加入购物车成功")
   }

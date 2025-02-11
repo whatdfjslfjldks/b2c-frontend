@@ -40,34 +40,42 @@ const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
-    // setCartInfo: (state, action) => {
-    //   let cartInfo: Cart = JSON.parse(localStorage.getItem('cartInfo') || '{"productList":[]}');
+    updateProductQuantity: (state, action) => {
+      const { productId, productType, newAmount } = action.payload;
+      const cartInfo = state.cartInfo;
+      if (cartInfo) {
+        // 查找商品
+        const existingProductIndex = cartInfo.productList.findIndex(item => 
+          item.id === productId
+        );
+        if (existingProductIndex !== -1) {
+          // 更新数量
+          cartInfo.productList[existingProductIndex].amount = newAmount;
+          // 更新 localStorage
+          localStorage.setItem('cartInfo', JSON.stringify(cartInfo));
+        }
+      }
+    },
 
-    //   const existingProductIndex = cartInfo.productList.findIndex(item =>
-    //     item.id === action.payload.id && item.type_name === action.payload.type_name
-    //   );
+    // 删除商品，使用 id 和 type_name 组合查找商品
+    removeProductFromCart: (state, action) => {
+      const { productId} = action.payload;
+      const cartInfo = state.cartInfo;
+      if (cartInfo) {
+        // 查找并删除商品
+        cartInfo.productList = cartInfo.productList.filter(item => 
+          !(item.id === productId)
+        );
+        // 更新 localStorage
+        localStorage.setItem('cartInfo', JSON.stringify(cartInfo));
+      }
+    },
 
-    //   if (existingProductIndex !== -1) {
-    //     // 如果商品已经在购物车中，更新数量
-    //     cartInfo.productList[existingProductIndex].amount = action.payload.amount;
-    //   } else {
-    //     // 如果商品不在购物车中，直接新增
-    //     cartInfo.productList.push(action.payload);
-    //   }
-
-    //   // 保存到 localStorage
-    //   localStorage.setItem('cartInfo', JSON.stringify(cartInfo));
-
-    //   // 更新 Redux state
-    //   state.cartInfo = cartInfo;
-    // },
     setCartInfo: (state, action) => {
       let cartInfo: Cart = JSON.parse(localStorage.getItem('cartInfo') || '{"productList":[]}');
       const existingProductIndex = cartInfo.productList.findIndex(item => 
-        item.id === action.payload.id && item.type_name === action.payload.type_name
+        item.id === action.payload.id
       );
-      
-    
       if (existingProductIndex !== -1) {
         // 如果商品已经在购物车中，更新数量
         cartInfo.productList[existingProductIndex].amount += action.payload.amount;
@@ -98,7 +106,7 @@ const cartSlice = createSlice({
 });
 
 // 导出 actions
-export const { setCartInfo, setLoading, setError, loadCartFromLocalStorage,removeCartFromLocalStorage } = cartSlice.actions;
+export const { setCartInfo, setLoading, setError, loadCartFromLocalStorage,removeCartFromLocalStorage,updateProductQuantity,removeProductFromCart } = cartSlice.actions;
 
 // 导出 reducer
 export default cartSlice.reducer;
