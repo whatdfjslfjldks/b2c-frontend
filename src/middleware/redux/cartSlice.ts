@@ -9,7 +9,7 @@ interface product {
     id:number,
     name:string,
     cover:string, // 封面，选列表第一个
-    type_name:string, 
+    // type_name:string, 
     price:number, // 单价
     amount:number, // 购买数量
 }

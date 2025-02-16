@@ -9,6 +9,9 @@ interface User {
   accessToken: string;
   refreshToken: string;
   avatarUrl: string;
+  email: string;
+  bio:string;
+  createdAt:string;
 }
 
 // 定义状态类型
@@ -78,11 +81,25 @@ const userSlice = createSlice({
       state.userInfo = null;
       localStorage.removeItem('userInfo');
     },
+     // 修改头像 URL
+     updateAvatarUrl: (state, action) => {
+      if (state.userInfo) {
+        state.userInfo.avatarUrl = action.payload;
+        localStorage.setItem('userInfo', JSON.stringify(state.userInfo));
+      }
+    },
+        // 修改用户名
+        updateUsername: (state, action) => {
+          if (state.userInfo) {
+            state.userInfo.username = action.payload;
+            localStorage.setItem('userInfo', JSON.stringify(state.userInfo));
+          }
+        },
   },
 });
 
 // 导出 actions
-export const { setUserInfo, setLoading, setError, loadUserFromLocalStorage,removeUserFromLocalStorage } = userSlice.actions;
+export const { setUserInfo, setLoading, setError, loadUserFromLocalStorage,removeUserFromLocalStorage,updateAvatarUrl,updateUsername } = userSlice.actions;
 
 // 导出 reducer
 export default userSlice.reducer;

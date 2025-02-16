@@ -217,7 +217,7 @@ staleTime: 1*60*1000,
                         /> */}
                 {product.pImg && product.pImg.length > 0 && product.pImg[0]?.img_url ? (
                 <Image
-                    src={`http://localhost:9000/${product.pImg[0]?.img_url}`}
+                    src={`${process.env.NEXT_PUBLIC_IMAGE_PREFIX}${product.pImg[0]?.img_url}`}
                     alt="product"
                     layout="fill"
                     objectFit="cover"

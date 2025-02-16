@@ -7,7 +7,7 @@ import Products from "./products";
 
 
 export default function ProductList() {
-  const [selectedKey, setSelectedKey] = useState(1); 
+  const [selectedKey, setSelectedKey] = useState(0); 
 
   return (
     <div className="flex  flex-col p-[15px] w-full h-[800px] mt-[20px]">

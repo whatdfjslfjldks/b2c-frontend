@@ -1,12 +1,12 @@
 // 主页商品模块导航栏
 export const menuItemsHomePage = [
-    { id: 1, label: '猜你喜欢', icon: '/images/like.png' },
-    { id: 2, label: '运动户外', icon: '/images/sport.png' },
-    { id: 3, label: '馋嘴零食', icon: '/images/food.png' },
-    { id: 4, label: '潮电数码', icon: '/images/phone.png' },
-    { id: 5, label: '服饰时尚', icon: '/images/clothes.png' },
-    { id: 6, label: '家装建材', icon: '/images/chatou.png' },
-    { id: 7, label: '办公文具', icon: '/images/work.png' },
+    { id: 0, label: '猜你喜欢', icon: '/images/like.png' },
+    { id: 1, label: '运动户外', icon: '/images/sport.png' },
+    { id: 2, label: '馋嘴零食', icon: '/images/food.png' },
+    { id: 3, label: '潮电数码', icon: '/images/phone.png' },
+    { id: 4, label: '服饰时尚', icon: '/images/clothes.png' },
+    { id: 5, label: '家装建材', icon: '/images/chatou.png' },
+    { id: 6, label: '办公文具', icon: '/images/work.png' },
 ];
 // 主页导航栏
 export const menuKeyTopSec: { [key: string]: number } = {

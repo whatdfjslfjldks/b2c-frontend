@@ -5,7 +5,7 @@ import BottomComponent from "@/components/bottom/bottomComponent";
 import Loading from "@/components/loading/loadingComponents";
 import ProductInfo from "@/components/product/productInfo";
 import MainLayout from "@/layouts/mainLayout";
-import { PImg, PPType, PType, productsInfo2 } from "@/model/vo/productInfoVO";
+import { PImg, productsInfo2 } from "@/model/vo/productInfoVO";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
@@ -27,7 +27,7 @@ type pDetail = {
 type State = {
   count: number;
   selectImg: selectImg | null;
-  selectType: selectType | null;
+  // selectType: selectType | null;
 };
 
 type selectImg = {
@@ -36,7 +36,6 @@ type selectImg = {
 };
 type selectType={
   index:number;
-  type_id: number;
   type_name: string;
 }
 
@@ -108,7 +107,7 @@ export default function ProductDetail() {
   const [state,setState]=useState<State>({
     count:1,
     selectImg:null,
-    selectType:null,
+    // selectType:null,
   });
   const [zoomPosition, setZoomPosition] = useState({
     x: 0,
@@ -164,7 +163,10 @@ export default function ProductDetail() {
       if (data.code === 200 && data.result) {
         setIsExist(true);
         setProductInfo(data.result as productsInfo2);
-        if(!data.result.pImg || !data.result.pType || data.result.pType.length<=0 || data.result.pType.length<=0){
+        // if(!data.result.pImg || !data.result.pType || data.result.pType.length<=0 || data.result.pType.length<=0){
+        //   return;
+        // }
+        if(!data.result.pImg){
           return;
         }
         setState({
@@ -173,11 +175,10 @@ export default function ProductDetail() {
             index: 0,
             img_url: data.result.pImg[0].img_url,
           },
-          selectType: {
-            index: 0,
-            type_id: data.result.pType[0].type_id,
-            type_name: data.result.pType[0].type_name,
-          },
+          // selectType: {
+          //   index: 0,
+          //   type_name: data.result.pType[0].type_name,
+          // },
         });
 
       } else if (data.code === 404) {
@@ -199,24 +200,21 @@ export default function ProductDetail() {
       },
     });
   }
-  function handleTypeClick(item: PPType, index: number) {
-    setState({
-      ...state,
-      selectType: {
-        index: index,
-        type_id: item.type_id,
-        type_name: item.type_name,
-      },
-    });
-  }
-
-
+  // function handleTypeClick(item: PPType, index: number) {
+  //   setState({
+  //     ...state,
+  //     // selectType: {
+  //     //   index: index,
+  //     //   type_name: item.type_name,
+  //     // },
+  //   });
+  // }
   function addToCart(product: productsInfo2){
     const a={
-      id:state.selectType?.type_id,
+      id:product.id,
       name:product.name,
       cover:product.pImg[0].img_url,
-      type_name:state.selectType?.type_name,
+      // type_name:state.selectType?.type_name,
       price:product.price,
       amount:state.count,
       }
@@ -224,6 +222,10 @@ export default function ProductDetail() {
     dispatch(setCartInfo(a))
     messageApi.success("加入购物车成功")
   }
+
+  // function handlePurchase(product: productsInfo2){
+  //   router.push(`/orderConfirm?productIds=${productInfo?.id}&amounts=${state.count}`)
+  // }
 
 
   if (!isExist) {
@@ -337,8 +339,12 @@ export default function ProductDetail() {
                 <div className="text-[20px] tracking-widest text-[#7c889c] font-normal mt-[10px] ">
                   分&nbsp;&nbsp;类:
                 </div>
-                {/* 具体类别 */}
                 <div className="flex flex-col ml-[10px] h-[300px] w-[500px] overflow-y-scroll scrollbar-hide ">
+                  分类未上传
+                  </div>
+
+                {/* 具体类别 */}
+                {/* <div className="flex flex-col ml-[10px] h-[300px] w-[500px] overflow-y-scroll scrollbar-hide ">
                   {productInfo?.pType && productInfo.pType.length > 0 ? (
                     <div>
                       {productInfo?.pType.map((item, index) => (
@@ -355,7 +361,7 @@ export default function ProductDetail() {
                   ) : (
                     <div>还没有上传商品分类</div>
                   )}
-                </div>
+                </div> */}
               </div>
 
               {/* 数量 */}
@@ -399,12 +405,16 @@ export default function ProductDetail() {
                       <div className="text-[14px] text-[#fff]">加入购物车</div>
                     </div>
 
-                    <div className="flex items-center w-[100px] ml-[40px] justify-center bg-[#fff] border border-[#e93323] h-[50px] p-2 rounded-md cursor-pointer">
+                    <div
+                    //  onClick={()=>handlePurchase(productInfo)}
+                      className="flex items-center w-[100px] ml-[40px] justify-center bg-[#fff] border border-[#e93323] h-[50px] p-2 rounded-md cursor-pointer">
                       <div className="text-[14px] text-[#e93323]">立即购买</div>
                     </div>
                   </>
                 ) : (
-                  <div className="flex items-center w-[100px] justify-center bg-[#fff] border border-[#e93323] h-[50px] p-2 rounded-md cursor-pointer">
+                  <div 
+                  // onClick={()=>handlePurchase(productInfo)}
+                   className="flex items-center w-[100px] justify-center bg-[#fff] border border-[#e93323] h-[50px] p-2 rounded-md cursor-pointer">
                     <div className="text-[14px] text-[#e93323]">立即购买</div>
                   </div>
                 )}

@@ -4,7 +4,7 @@
     name: string;
     description: string;
     pImg: PImg[];
-    pType: PType[];
+    // pType: PType[];
     price: number;
     original_price: number;
     stock: number;
@@ -21,10 +21,10 @@ export type PImg = {
     img_url: string;
 };
 
-// 商品类型信息
-export type PType = {
-    type_name: string;
-};
+// // 商品类型信息
+// export type PType = {
+//     type_name: string;
+// };
 
 
 
@@ -33,7 +33,7 @@ export type productsInfo2 = {
     name: string;
     description: string;
     pImg: PImg[];
-    pType: PPType[];
+    // pType: PPType[];
     price: number;
     original_price: number;
     stock: number;
@@ -47,8 +47,8 @@ export type productsInfo2 = {
 };
 
 // 商品类型信息
-export type PPType = {
-    type_id: number;
-    type_name: string;
-};
+// export type PPType = {
+//     type_id: number;
+//     type_name: string;
+// };
 

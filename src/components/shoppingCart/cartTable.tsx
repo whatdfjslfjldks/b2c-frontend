@@ -16,7 +16,7 @@ interface product {
   id: number;
   name: string;
   cover: string; // 封面，选列表第一个
-  type_name: string;
+  // type_name: string;
   price: number; // 单价
   amount: number; // 购买数量
 }
@@ -87,33 +87,29 @@ const CartTable: React.FC = () => {
     if (selectedItems.length === cartItems?.productList.length) {
       setSelectedItems([]);
     } else {
-      setSelectedItems(cartItems!.productList.map((item, index) => index));
+      setSelectedItems(cartItems!.productList.map((item, index) => item.id));
     }
   };
 
   // 计算选中的商品总额
   const calculateTotal = () => {
     return cartItems?.productList
-      .filter((_, index) => selectedItems.includes(index))
+      .filter((item, index) => selectedItems.includes(item.id))
       .reduce((total, item) => total + item.price * item.amount, 0);
   };
 
   // 去结算
   const handleCheckout = () => {
+    console.log("cccc: ",cartItems)
     const selectedCartItems = cartItems?.productList.filter(item => selectedItems.includes(item.id));
-    console.log('用户选择了以下商品：');
-    selectedCartItems?.forEach(item => {
-      console.log(`${item.name} - 数量: ${item.amount} - 总价: ${item.price * item.amount}`);
-    });
+    // selectedCartItems?.forEach(item => {
+    //   console.log(`${item.name} - 数量: ${item.amount} - 总价: ${item.price * item.amount}`);
+    // });
+    // console.log(selectedCartItems);
+    const productIds = selectedCartItems?.map(item => item.id).join(',');
+    const amounts = selectedCartItems?.map(item => item.amount).join(',');
 
-    // 通过 URL 参数传递商品信息
-    const urlParams = new URLSearchParams();
-    selectedCartItems?.forEach(item => {
-      urlParams.append('productIds[]', item.id.toString());
-      urlParams.append('amounts[]', item.amount.toString());
-    });
-
-    router.push(`/orderConfirm?product=${urlParams.toString()}`);
+    router.push(`/orderConfirm?productIds=${productIds}&amounts=${amounts}`);
   };
 
   if (loadState.isLoading) {
@@ -158,8 +154,8 @@ const CartTable: React.FC = () => {
               <TableRow key={index}>
                 <TableCell padding="checkbox">
                   <Checkbox
-                    checked={selectedItems.includes(index)}
-                    onChange={() => handleSelectItem(index)}
+                    checked={selectedItems.includes(item.id)}
+                    onChange={() => handleSelectItem(item.id)}
                     inputProps={{ 'aria-label': `选择 ${item.name}` }}
                   />
                 </TableCell>
@@ -171,7 +167,10 @@ const CartTable: React.FC = () => {
                       width={80}
                       height={80}
                     />
-                    <Typography component="div" variant="body2">{item.name}<br /><small>{item.type_name}</small></Typography>
+                    <Typography component="div" variant="body2">
+                      {item.name}<br />
+                      {/* <small>{item.type_name}</small> */}
+                      </Typography>
                   </Box>
                 </TableCell>
                 <TableCell align="right">{item.price}</TableCell>

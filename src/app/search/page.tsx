@@ -28,6 +28,7 @@ export default function ProductClassify() {
   const router = useRouter();
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [productList, setProductList]=useState<productsInfo[]>([])
+  const keyword = useSearchParams().get('keyword') || '';
 
   const loadMoreProducts = async (url:string)=> {
     // console.log("查询的url： ",url)
@@ -58,7 +59,7 @@ export default function ProductClassify() {
   // },[keyword])
 
   const { data, error, isLoading } = 
-  useSWR(`/product-server/getProductList?currentPage=${state.currentPage}&pageSize=${state.pageSize}&categoryId=${state.selectedKey}&sort=${state.shaixuan}`,
+  useSWR(`/product-server/fuzzySearch?keyword=${keyword}&currentPage=${state.currentPage}&pageSize=${state.pageSize}`,
    loadMoreProducts,
    {
     dedupingInterval: 10*5000,  // 5秒内不会重复请求相同url
@@ -132,86 +133,8 @@ function handleProductClick(product:any) {
               >
                 首页
               </div>
-              <div className="text-[#999] text-[14px]">产品详情</div>
+              <div className="text-[#999] text-[14px]">{keyword}</div>
             </Breadcrumbs>
-          </div>
-
-          {/* 商品分类导航栏 */}
-          <div className="flex flex-row items-center  w-full h-[50px] mt-[10px] pl-[10px]">
-            {menuItemsClassify.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => setState({
-                  ...state,
-                  selectedKey:item.id,
-                  currentPage:1,
-                  isSame:false,
-                  isSort:false
-                })}
-                className={`flex flex-row mr-[32px] cursor-pointer items-center justify-center w-[60px] h-[35px] ${
-                  state.selectedKey === item.id ? "shadow-[0_2px_0_0_#e93323]" : ""
-                }`}
-              >
-                <div
-                  className={`text-[14px] hover:text-[#e93323]  ${
-                    state.selectedKey === item.id
-                      ? "font-custom text-[#e93323] "
-                      : "text-[#282828]"
-                  }`}
-                >
-                  {item.label}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* 排序 */}
-          <div className="flex flex-row  items-center  w-full h-[40px] mt-[5px] pl-[10px]">
-            <div className="text-[#969696] text-[14px] font-custom">排序：</div>
-            <div
-              onClick={() => setState({
-                ...state,
-                shaixuan:0,
-                isSame:true,
-                isSort:true,
-                currentPage:1
-              })}
-              className={`cursor-pointer hover:text-[#e93323] text-[14px] font-custom ml-[10px] ${
-                state.shaixuan === 0 ? " text-[#e93323]" : "text-[#282828]"
-              }`}
-            >
-              默认
-            </div>
-
-            <div
-              onClick={() => setState({
-                ...state,
-                shaixuan:1,
-                isSame:true,
-                isSort:true,
-                currentPage:1
-              })}
-              className={`cursor-pointer hover:text-[#e93323] text-[14px] font-custom ml-[20px] ${
-                state.shaixuan === 1 ? "text-[#e93323]" : "text-[#282828]"
-              }`}
-            >
-              价格
-            </div>
-
-            <div
-              onClick={() => setState({
-                ...state,
-                shaixuan:2,
-                isSame:true,
-                isSort:true,
-                currentPage:1
-              })}
-              className={`cursor-pointer hover:text-[#e93323]  text-[14px] font-custom ml-[20px] ${
-                state.shaixuan === 2 ? " text-[#e93323]" : "text-[#282828]"
-              }`}
-            >
-              上架时间
-            </div>
           </div>
 
 {/* 商品展示 */}
@@ -236,7 +159,7 @@ function handleProductClick(product:any) {
                 <div className="w-full h-[180px] rounded-lg relative">
                 {product.pImg && product.pImg.length > 0 && product.pImg[0]?.img_url ? (
                 <Image
-                    src={`${process.env.NEXT_PUBLIC_IMAGE_PREFIX}${product.pImg[0]?.img_url}`}
+                    src={`http://localhost:9000/${product.pImg[0]?.img_url}`}
                     alt="product"
                     layout="fill"
                     objectFit="cover"

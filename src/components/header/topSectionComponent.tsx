@@ -27,9 +27,12 @@ export default function TopSectionComponent() {
   const [isHovered, setIsHovered] = useState(false); 
   const containerRef = useRef<HTMLDivElement>(null); 
   const [selectedMenu,setSelectedMenu]=useState<number|null>(null);
+  const [value,setValue]=useState<string>('');
   const router=useRouter();
+
   function handleSearch() {
-    console.log("Search");
+    // console.log("Search",value);
+    router.push(`/search?keyword=${value}`);
   }
 
   function handleFocus(event: React.FocusEvent<HTMLElement>) {
@@ -95,6 +98,7 @@ export default function TopSectionComponent() {
           variant="outlined"
           placeholder="搜索..."
           size="small"
+          onChange={(e)=>setValue(e.target.value)}
           sx={{
             width: "100%",
             borderRadius: "10px",
@@ -117,10 +121,10 @@ export default function TopSectionComponent() {
                 <Button
                   variant="contained"
                   color="primary"
+                  onClick={handleSearch}
                   sx={{
                     borderRadius: "10px",
                   }}
-                  onClick={handleSearch}
                 >
                   搜索
                 </Button>
@@ -133,7 +137,7 @@ export default function TopSectionComponent() {
       </div>
 
       {/* 搜索建议框 */}
-      <Popper
+      {/* <Popper
         open={open}
         anchorEl={containerRef.current}
         placement="bottom-start"
@@ -148,7 +152,7 @@ export default function TopSectionComponent() {
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
-          {/* 历史搜索部分 */}
+          历史搜索部分
           <div>
             <div className="font-semibold mb-2">历史搜索</div>
             <div className="flex flex-col">
@@ -176,7 +180,7 @@ export default function TopSectionComponent() {
             </Button>
           </div>
 
-          {/* 猜你想搜部分 */}
+          猜你想搜部分
           <div className="mt-4">
             <div className="font-semibold mb-2">猜你想搜</div>
             <div className="flex flex-col">
@@ -186,7 +190,9 @@ export default function TopSectionComponent() {
             </div>
           </div>
         </Paper>
-      </Popper>
+      </Popper> */}
+
+
     </div>
   );
 }
